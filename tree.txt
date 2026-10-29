@@ -1,0 +1,216 @@
+adqs-frontend/
+├── index.html                              # Vite entry HTML
+├── vite.config.ts                          # Vite config (React plugin, Tailwind v4, @ alias)
+├── tsconfig.json                           # TypeScript root config
+├── tsconfig.app.json                       # App TS config (baseUrl, paths @/*)
+├── tsconfig.node.json                      # Node TS config (vite.config)
+├── components.json                         # shadcn/ui config (new-york style, src/styles.css)
+├── .oxlintrc.json                          # Oxlint config
+├── .gitignore                              # Git ignore rules
+├── package.json                            # Dependencies and scripts
+├── package-lock.json                       # Locked dependency versions
+├── README.md                               # Project readme
+├── tree.txt                                # This file structure
+│
+├── public/                                 # Static assets (served as-is)
+│   ├── favicon.svg                         # Site favicon
+│   └── icons.svg                           # Icon sprite sheet
+│
+└── src/
+    ├── main.tsx                            # App entry point (ReactDOM.createRoot)
+    ├── App.tsx                             # Root component (router + providers)
+    ├── App.css                             # App-level styles (minimal)
+    ├── index.css                           # Base reset
+    ├── styles.css                          # Tailwind v4 @theme inline — ADQS brand tokens
+    │                                       #   primary = navy oklch(0.28 0.08 255)
+    │                                       #   secondary = gold oklch(0.68 0.12 78)
+    │                                       #   utilities: bg-brand-gradient, bg-gold-gradient,
+    │                                       #   text-brand-gradient, shadow-glow, shadow-gold, shadow-card
+    │
+    ├── assets/                             # Static image assets
+    │   ├── bright-ceo.jpg                  # CEO photo (Bright Ngwenyama Gunde)
+    │   ├── logo.jpg                        # ADQS logo
+    │   ├── hero.png                        # Hero background image
+    │   ├── react.svg                       # (Vite default — remove later)
+    │   └── vite.svg                        # (Vite default — remove later)
+    │
+    ├── routes/                             # React Router configuration
+    │   ├── routes.ts                       # ROUTES constants (all public + admin paths)
+    │   └── ProtectedRoute.tsx              # Auth guard — reads Zustand isAuthenticated
+    │
+    ├── pages/                              # Route-level page components
+    │   ├── HomePage.tsx                    # / — landing page (Phase 4)
+    │   ├── AboutPage.tsx                   # /about (Phase 5)
+    │   ├── ServicesPage.tsx                # /services (Phase 6)
+    │   ├── ServiceDetailPage.tsx           # /services/:slug (Phase 6)
+    │   ├── InsightsPage.tsx                # /insights (Phase 7)
+    │   ├── ArticleDetailPage.tsx           # /insights/:slug (Phase 7)
+    │   ├── ContactPage.tsx                 # /contact (Phase 8)
+    │   ├── PrivacyPage.tsx                 # /privacy (Phase 9)
+    │   ├── NotFoundPage.tsx                # * 404 page
+    │   └── admin/                          # Admin pages (all protected)
+    │       ├── AdminLoginPage.tsx          # /admin/login (Phase 10)
+    │       ├── AdminDashboardPage.tsx      # /admin (Phase 11)
+    │       ├── ArticlesPage.tsx            # /admin/articles (Phase 12)
+    │       ├── ArticleEditorPage.tsx       # /admin/articles/new + /:id/edit (Phase 12)
+    │       └── EnquiriesPage.tsx           # /admin/enquiries (Phase 13)
+    │
+    ├── components/                         # Reusable UI components
+    │   │
+    │   ├── ui/                             # shadcn/ui primitives (45 components, new-york style)
+    │   │   ├── accordion.tsx
+    │   │   ├── alert-dialog.tsx
+    │   │   ├── alert.tsx
+    │   │   ├── aspect-ratio.tsx
+    │   │   ├── avatar.tsx
+    │   │   ├── badge.tsx
+    │   │   ├── breadcrumb.tsx
+    │   │   ├── button.tsx
+    │   │   ├── calendar.tsx
+    │   │   ├── card.tsx
+    │   │   ├── carousel.tsx
+    │   │   ├── chart.tsx
+    │   │   ├── checkbox.tsx
+    │   │   ├── collapsible.tsx
+    │   │   ├── command.tsx
+    │   │   ├── context-menu.tsx
+    │   │   ├── dialog.tsx
+    │   │   ├── drawer.tsx
+    │   │   ├── dropdown-menu.tsx
+    │   │   ├── form.tsx
+    │   │   ├── hover-card.tsx
+    │   │   ├── input-otp.tsx
+    │   │   ├── input.tsx
+    │   │   ├── label.tsx
+    │   │   ├── menubar.tsx
+    │   │   ├── navigation-menu.tsx
+    │   │   ├── pagination.tsx
+    │   │   ├── popover.tsx
+    │   │   ├── progress.tsx
+    │   │   ├── radio-group.tsx
+    │   │   ├── resizable.tsx
+    │   │   ├── scroll-area.tsx
+    │   │   ├── select.tsx
+    │   │   ├── separator.tsx
+    │   │   ├── sheet.tsx
+    │   │   ├── sidebar.tsx
+    │   │   ├── skeleton.tsx
+    │   │   ├── slider.tsx
+    │   │   ├── sonner.tsx
+    │   │   ├── switch.tsx
+    │   │   ├── table.tsx
+    │   │   ├── tabs.tsx
+    │   │   ├── textarea.tsx
+    │   │   ├── toggle-group.tsx
+    │   │   ├── toggle.tsx
+    │   │   └── tooltip.tsx
+    │   │
+    │   ├── layout/                         # Layout wrapper components
+    │   │   ├── PublicLayout.tsx            # Navbar + <Outlet> + Footer (Phase 2)
+    │   │   ├── AdminLayout.tsx             # Sidebar + header + <Outlet> (Phase 2)
+    │   │   ├── Navbar.tsx                  # Sticky top nav — logo, links, CTA, mobile menu (Phase 3)
+    │   │   └── Footer.tsx                  # Logo, nav columns, contact, legal (Phase 3)
+    │   │
+    │   ├── landing/                        # Homepage section components (Phase 4)
+    │   │   ├── Hero.tsx                    # Full-width hero — headline, CTAs, motion entrance
+    │   │   ├── ServicesOverview.tsx        # 6 service cards — staggered scroll reveal
+    │   │   ├── AboutStrip.tsx              # Two-column — principles text + visual
+    │   │   ├── FounderSection.tsx          # CEO photo + bio excerpt
+    │   │   ├── LatestInsights.tsx          # 3 article cards from dummy data
+    │   │   └── ContactCTA.tsx              # Full-width navy CTA strip
+    │   │
+    │   └── shared/                         # Shared domain components
+    │       ├── PageHero.tsx                # Page title + intro + breadcrumb (reused across pages)
+    │       ├── ArticleCard.tsx             # Article card — image, badge, title, excerpt, date
+    │       ├── ServiceCard.tsx             # Service card — icon, title, description, hover glow
+    │       ├── SectionHeading.tsx          # Consistent section title + subheading
+    │       └── ContactCTA.tsx              # Reusable CTA strip (also used in About, Services)
+    │
+    ├── features/                           # Feature-based modules (api + queries + mutations)
+    │   ├── articles/
+    │   │   ├── api.ts                      # Articles API calls (Phase 14)
+    │   │   ├── queries.ts                  # useArticlesQuery, useArticleQuery (Phase 14)
+    │   │   └── mutations.ts                # useCreateArticle, useUpdateArticle, useDeleteArticle (Phase 14)
+    │   │
+    │   ├── services/
+    │   │   ├── api.ts                      # Services API calls (Phase 14)
+    │   │   └── queries.ts                  # useServicesQuery (Phase 14)
+    │   │
+    │   ├── contact/
+    │   │   ├── api.ts                      # Contact form submit (Phase 14)
+    │   │   └── mutations.ts                # useSubmitEnquiry (Phase 14)
+    │   │
+    │   └── auth/
+    │       ├── api.ts                      # Admin login API call (Phase 14)
+    │       └── mutations.ts                # useLoginMutation (Phase 14)
+    │
+    ├── data/                               # Dummy data (used until backend is wired in Phase 14)
+    │   ├── articles.ts                     # 6 real articles from Bright's PDFs + CATEGORIES array
+    │   └── services.ts                     # 6 services matching requirements doc
+    │
+    ├── stores/                             # Zustand stores (client state only)
+    │   └── useAuthStore.ts                 # user, isAuthenticated, setAuth, logout, hydrate
+    │                                       # persists token to localStorage (key: adqs_token)
+    │
+    ├── hooks/                              # Generic reusable hooks
+    │   └── use-mobile.tsx                  # Mobile breakpoint detection (< 768px)
+    │
+    ├── lib/                                # Utility libraries
+    │   ├── api-client.ts                   # ApiClient class — fetch wrapper, JWT Bearer injection
+    │   │                                   # 401 → clears token → redirects to /admin/login
+    │   │                                   # exports: api, getToken, setToken, clearToken
+    │   ├── query-client.ts                 # TanStack QueryClient — staleTime 5min, gcTime 30min
+    │   └── utils.ts                        # cn() helper (clsx + tailwind-merge)
+    │
+    ├── providers/                          # React context/provider wrappers
+    │   └── Providers.tsx                   # QueryClientProvider + Toaster (sonner)
+    │
+    └── types/                              # TypeScript type definitions
+        └── index.ts                        # Article, Service, ContactEnquiry, AdminUser
+
+---
+
+## Architecture Decisions
+
+### Data flow:
+  Dummy data (src/data/) → page components (Phases 1–13)
+  Real server data → TanStack Query (features/*/queries.ts) wired in Phase 14
+  Client state (auth) → Zustand (stores/useAuthStore.ts)
+
+### API communication:
+  lib/api-client.ts → Express backend (VITE_API_URL)
+  Features call api-client via features/*/api.ts
+  Pages consume data via features/*/queries.ts hooks
+  Direct dummy data imports until Phase 14
+
+### Forms:
+  React Hook Form + Zod schemas
+  Used for: contact form, admin login, article editor
+  shadcn/ui Form components for consistent field rendering
+
+### Auth:
+  JWT token stored in localStorage (key: adqs_token)
+  Zustand useAuthStore — hydrate() called on app mount
+  ProtectedRoute wraps all /admin/* pages
+  ApiClient auto-injects Bearer token on all requests
+  401 response → clearToken() → redirect to /admin/login
+
+### Layout:
+  PublicLayout — Navbar + <Outlet> + Footer (all public pages)
+  AdminLayout — sidebar + header + <Outlet> (all /admin/* pages)
+  AdminLoginPage — standalone, no layout wrapper
+
+### Styling:
+  Tailwind v4 with @theme inline CSS variables
+  No dark mode — ADQS is light-only (professional legal brand)
+  Brand tokens: --color-primary (navy), --color-secondary (gold)
+  Utility classes: bg-brand-gradient, bg-gold-gradient, text-brand-gradient
+  Shadow utilities: shadow-glow, shadow-gold, shadow-card
+  motion (framer-motion) for scroll-reveal and entrance animations
+
+### Feature module pattern:
+  features/<domain>/api.ts — typed fetch functions
+  features/<domain>/queries.ts — TanStack useQuery hooks
+  features/<domain>/mutations.ts — TanStack useMutation hooks
+  Pages import from features/ — never call lib/api-client.ts directly
+  All features are stubs until Phase 14 (backend wiring)

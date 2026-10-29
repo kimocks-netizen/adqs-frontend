@@ -1,0 +1,17 @@
+export const ROUTES = {
+  HOME: '/',
+  ABOUT: '/about',
+  SERVICES: '/services',
+  SERVICE_DETAIL: (slug: string) => `/services/${slug}`,
+  INSIGHTS: '/insights',
+  ARTICLE_DETAIL: (slug: string) => `/insights/${slug}`,
+  CONTACT: '/contact',
+  PRIVACY: '/privacy',
+  DISCLAIMER: '/disclaimer',
+  ADMIN_LOGIN: '/admin/login',
+  ADMIN: '/admin',
+  ADMIN_ARTICLES: '/admin/articles',
+  ADMIN_ARTICLE_NEW: '/admin/articles/new',
+  ADMIN_ARTICLE_EDIT: (id: string) => `/admin/articles/${id}/edit`,
+  ADMIN_ENQUIRIES: '/admin/enquiries',
+} as const;
