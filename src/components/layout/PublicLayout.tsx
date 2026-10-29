@@ -13,3 +13,6 @@ export default function PublicLayout() {
     </div>
   );
 }
+
+// Navbar is fixed/absolute — pages that don't have a full-bleed hero
+// should add pt-16 themselves to avoid content hiding under the navbar.

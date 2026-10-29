@@ -17,6 +17,9 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef<HTMLElement>(null);
   const location = useLocation();
+  const isHome = location.pathname === ROUTES.HOME;
+  // Frost-over-video only on homepage; solid white everywhere else
+  const transparent = isHome && !scrolled;
 
   // Close mobile menu on route change
   useEffect(() => { setOpen(false); }, [location.pathname]);
@@ -49,10 +52,10 @@ export default function Navbar() {
   return (
     <header
       ref={menuRef}
-      className={`sticky top-0 z-50 border-b transition-all duration-300 ${
-        scrolled
-          ? 'border-border/60 bg-white/95 shadow-card backdrop-blur-xl'
-          : 'border-transparent bg-white/80 backdrop-blur-md'
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        transparent
+          ? 'border-b border-white/10 bg-white/5 backdrop-blur-md'
+          : 'border-b border-border/40 bg-white/90 shadow-card backdrop-blur-xl'
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
@@ -70,7 +73,9 @@ export default function Navbar() {
               end={end}
               className={({ isActive }) =>
                 `relative py-1 font-medium transition-colors ${
-                  isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  isActive
+                    ? transparent ? 'text-white' : 'text-foreground'
+                    : transparent ? 'text-white/75 hover:text-white' : 'text-muted-foreground hover:text-foreground'
                 }`
               }
             >
@@ -92,14 +97,22 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <Link
             to={ROUTES.CONTACT}
-            className="hidden rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90 sm:inline-flex"
+            className={`hidden rounded-full px-5 py-2 text-sm font-semibold transition hover:opacity-90 sm:inline-flex ${
+              transparent
+                ? 'bg-white/15 text-white ring-1 ring-white/30 backdrop-blur hover:bg-white/25'
+                : 'bg-primary text-primary-foreground'
+            }`}
           >
             Make an Enquiry
           </Link>
           <button
             onClick={() => setOpen((v) => !v)}
             aria-label="Toggle menu"
-            className="grid h-9 w-9 place-items-center rounded-full border border-border bg-card text-muted-foreground transition hover:text-foreground md:hidden"
+            className={`grid h-9 w-9 place-items-center rounded-full border transition md:hidden ${
+              transparent
+                ? 'border-white/20 bg-white/10 text-white hover:bg-white/20'
+                : 'border-border bg-card text-muted-foreground hover:text-foreground'
+            }`}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -108,7 +121,11 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="absolute inset-x-0 top-16 border-t border-border/60 bg-white/95 shadow-lg backdrop-blur-xl md:hidden">
+        <div className={`absolute inset-x-0 top-16 border-t shadow-lg backdrop-blur-xl md:hidden ${
+            transparent
+              ? 'border-white/10 bg-black/60'
+              : 'border-border/60 bg-white/95'
+          }`}>
           <nav className="flex flex-col px-6 py-3">
             {NAV_LINKS.map(({ to, label, end }) => (
               <NavLink
@@ -116,8 +133,10 @@ export default function Navbar() {
                 to={to}
                 end={end}
                 className={({ isActive }) =>
-                  `flex items-center justify-between border-b border-border/40 py-3.5 text-sm last:border-0 ${
-                    isActive ? 'font-semibold text-foreground' : 'text-muted-foreground'
+                  `flex items-center justify-between border-b py-3.5 text-sm last:border-0 ${
+                    transparent
+                      ? `border-white/10 ${isActive ? 'font-semibold text-white' : 'text-white/70'}`
+                      : `border-border/40 ${isActive ? 'font-semibold text-foreground' : 'text-muted-foreground'}`
                   }`
                 }
               >
@@ -131,7 +150,7 @@ export default function Navbar() {
             ))}
             <Link
               to={ROUTES.CONTACT}
-              className="mt-3 mb-1 inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
+              className="mb-1 mt-3 inline-flex items-center justify-center rounded-full bg-secondary px-5 py-3 text-sm font-semibold text-secondary-foreground"
             >
               Make an Enquiry
             </Link>

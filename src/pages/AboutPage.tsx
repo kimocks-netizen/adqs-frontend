@@ -81,7 +81,7 @@ function PageHero() {
   return (
     <section className="relative overflow-hidden bg-soft">
       <div className="pointer-events-none absolute -top-24 right-0 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl" />
-      <div className="mx-auto max-w-7xl px-6 py-20 sm:py-28">
+      <div className="mx-auto max-w-7xl px-6 pb-20 pt-32 sm:pt-36">
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

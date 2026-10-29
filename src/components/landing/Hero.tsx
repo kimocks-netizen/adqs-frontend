@@ -121,7 +121,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative min-h-[90vh] overflow-hidden">
+    <section className="relative min-h-[50vh] overflow-hidden">
       {/* Video / fallback background */}
       <VideoBackground clips={CLIPS} />
 
@@ -132,7 +132,7 @@ export default function Hero() {
       <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gold-gradient" />
 
       {/* Content */}
-      <div className="relative mx-auto flex min-h-[90vh] max-w-7xl flex-col justify-center px-6 pb-24 pt-20">
+      <div className="relative mx-auto flex min-h-[50vh] max-w-7xl flex-col justify-center px-6 pb-12 pt-16">
 
         {/* Badge */}
         <motion.div
