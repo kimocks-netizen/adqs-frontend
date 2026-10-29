@@ -1,3 +1,19 @@
+import Hero from '@/components/landing/Hero';
+import ServicesOverview from '@/components/landing/ServicesOverview';
+import AboutStrip from '@/components/landing/AboutStrip';
+import FounderSection from '@/components/landing/FounderSection';
+import LatestInsights from '@/components/landing/LatestInsights';
+import ContactCTA from '@/components/landing/ContactCTA';
+
 export default function HomePage() {
-  return <div className="p-8 text-center text-muted-foreground">HomePage — Phase 4</div>;
+  return (
+    <>
+      <Hero />
+      <ServicesOverview />
+      <AboutStrip />
+      <FounderSection />
+      <LatestInsights />
+      <ContactCTA />
+    </>
+  );
 }
