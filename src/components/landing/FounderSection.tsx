@@ -2,7 +2,6 @@ import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { ROUTES } from '@/routes/routes';
-import ceoImg from '@/assets/bright-ceo.jpg';
 import meetFounderImg from '@/assets/meet-founder.png';
 
 export default function FounderSection() {
