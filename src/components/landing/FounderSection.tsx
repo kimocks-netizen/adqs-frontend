@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { ROUTES } from '@/routes/routes';
 import ceoImg from '@/assets/bright-ceo.jpg';
+import meetFounderImg from '@/assets/meet-founder.png';
 
 export default function FounderSection() {
   return (
@@ -20,7 +21,7 @@ export default function FounderSection() {
           <div className="absolute -inset-4 rounded-3xl bg-brand-gradient opacity-10 blur-2xl" />
           <div className="relative overflow-hidden rounded-2xl border border-border shadow-glow">
             <img
-              src={ceoImg}
+              src={meetFounderImg}
               alt="Bright Ngwenyama Gunde — Founder & Principal Consultant"
               className="h-auto w-full object-cover"
             />
