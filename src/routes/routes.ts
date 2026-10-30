@@ -14,4 +14,7 @@ export const ROUTES = {
   ADMIN_ARTICLE_NEW: '/admin/articles/new',
   ADMIN_ARTICLE_EDIT: (id: string) => `/admin/articles/${id}/edit`,
   ADMIN_ENQUIRIES: '/admin/enquiries',
+  ADMIN_DOCUMENTS: '/admin/documents',
+  ADMIN_DOCUMENT_NEW: '/admin/documents/new',
+  ADMIN_DOCUMENT_EDIT: (id: string) => `/admin/documents/${id}/edit`,
 } as const;

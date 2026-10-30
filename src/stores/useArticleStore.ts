@@ -7,6 +7,7 @@ interface ArticleStore {
   add: (article: Article) => void;
   update: (article: Article) => void;
   remove: (id: string) => void;
+  toggleHidden: (id: string) => void;
 }
 
 export const useArticleStore = create<ArticleStore>((set) => ({
@@ -14,4 +15,5 @@ export const useArticleStore = create<ArticleStore>((set) => ({
   add: (article) => set((s) => ({ articles: [article, ...s.articles] })),
   update: (article) => set((s) => ({ articles: s.articles.map((a) => (a.id === article.id ? article : a)) })),
   remove: (id) => set((s) => ({ articles: s.articles.filter((a) => a.id !== id) })),
+  toggleHidden: (id) => set((s) => ({ articles: s.articles.map((a) => (a.id === id ? { ...a, hidden: !a.hidden } : a)) })),
 }));

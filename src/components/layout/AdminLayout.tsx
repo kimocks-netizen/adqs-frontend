@@ -1,19 +1,16 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import {
-  LayoutDashboard,
-  FolderOpen,
-  Mail,
-  LogOut,
-  ChevronRight,
-  User,
+  LayoutDashboard, FolderOpen, Mail, LogOut,
+  ChevronRight, User, FileText,
 } from 'lucide-react';
 import logo from '@/assets/logo.jpg';
 
 const NAV = [
-  { to: ROUTES.ADMIN, label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: ROUTES.ADMIN_ARTICLES, label: 'Documents', icon: FolderOpen, end: false },
-  { to: ROUTES.ADMIN_ENQUIRIES, label: 'Enquiries', icon: Mail, end: false },
+  { to: ROUTES.ADMIN,           label: 'Dashboard', icon: LayoutDashboard, end: true  },
+  { to: ROUTES.ADMIN_DOCUMENTS, label: 'Documents', icon: FolderOpen,      end: false },
+  { to: ROUTES.ADMIN_ARTICLES,  label: 'Articles',  icon: FileText,        end: false },
+  { to: ROUTES.ADMIN_ENQUIRIES, label: 'Enquiries', icon: Mail,            end: false },
 ];
 
 export default function AdminLayout() {
@@ -26,8 +23,9 @@ export default function AdminLayout() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="fixed top-0 left-0 h-screen w-60 flex flex-col bg-primary text-white shrink-0 z-40">
+
+      {/* ── Desktop sidebar (hidden on mobile) ── */}
+      <aside className="hidden md:flex fixed top-0 left-0 h-screen w-60 flex-col bg-primary text-white shrink-0 z-40">
         {/* Logo */}
         <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
           <img src={logo} alt="ADQS" className="h-8 w-auto object-contain rounded" />
@@ -79,20 +77,67 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* Main */}
-      <div className="flex flex-1 flex-col min-w-0 ml-60">
+      {/* ── Main content ── */}
+      <div className="flex flex-1 flex-col min-w-0 md:ml-60">
         {/* Topbar */}
-        <header className="h-14 flex items-center justify-between px-6 bg-white border-b border-gray-100 shrink-0">
-          <p className="text-sm text-gray-500">Adequate Strategies — Content Management</p>
-          <span className="text-xs bg-brand-secondary/10 text-brand-secondary font-semibold px-3 py-1 rounded-full">
-            Admin
-          </span>
+        <header className="h-14 flex items-center justify-between px-4 md:px-6 bg-white border-b border-gray-100 shrink-0">
+          {/* Mobile: show logo */}
+          <div className="flex items-center gap-2 md:hidden">
+            <img src={logo} alt="ADQS" className="h-7 w-auto object-contain rounded" />
+            <span className="text-sm font-bold text-brand-primary">Admin Portal</span>
+          </div>
+          {/* Desktop: show subtitle */}
+          <p className="hidden md:block text-sm text-gray-500">Adequate Strategies — Content Management</p>
+          <div className="flex items-center gap-3">
+            <span className="text-xs bg-brand-secondary/10 text-brand-secondary font-semibold px-3 py-1 rounded-full">
+              Admin
+            </span>
+            {/* Mobile sign out */}
+            <button
+              onClick={handleLogout}
+              className="md:hidden text-gray-400 hover:text-red-500 transition-colors"
+              title="Sign out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
         </header>
 
-        <main className="flex-1 p-6 overflow-auto">
+        {/* Page content — extra bottom padding on mobile for the bottom nav */}
+        <main className="flex-1 p-4 md:p-6 overflow-auto pb-24 md:pb-6">
           <Outlet />
         </main>
       </div>
+
+      {/* ── Mobile bottom nav (WhatsApp style, hidden on desktop) ── */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-100 shadow-lg">
+        <div className="flex items-center justify-around h-16">
+          {NAV.map(({ to, label, icon: Icon, end }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={({ isActive }) =>
+                `flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${
+                  isActive ? 'text-brand-primary' : 'text-gray-400 hover:text-gray-600'
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <div className={`p-1.5 rounded-xl transition-colors ${isActive ? 'bg-brand-primary/10' : ''}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <span className={`text-[10px] font-semibold ${isActive ? 'text-brand-primary' : 'text-gray-400'}`}>
+                    {label}
+                  </span>
+                </>
+              )}
+            </NavLink>
+          ))}
+        </div>
+      </nav>
+
     </div>
   );
 }

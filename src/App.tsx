@@ -20,6 +20,8 @@ import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
 import ArticlesPage from '@/pages/admin/ArticlesPage';
 import ArticleEditorPage from '@/pages/admin/ArticleEditorPage';
 import EnquiriesPage from '@/pages/admin/EnquiriesPage';
+import DocumentsPage from '@/pages/admin/DocumentsPage';
+import DocumentEditorPage from '@/pages/admin/DocumentEditorPage';
 
 const router = createBrowserRouter([
   {
@@ -48,6 +50,9 @@ const router = createBrowserRouter([
           { path: '/admin/articles/new', element: <ArticleEditorPage /> },
           { path: '/admin/articles/:id/edit', element: <ArticleEditorPage /> },
           { path: '/admin/enquiries', element: <EnquiriesPage /> },
+          { path: '/admin/documents', element: <DocumentsPage /> },
+          { path: '/admin/documents/new', element: <DocumentEditorPage /> },
+          { path: '/admin/documents/:id/edit', element: <DocumentEditorPage /> },
         ],
       },
     ],

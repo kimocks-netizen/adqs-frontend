@@ -8,6 +8,7 @@ export interface Article {
   category: string;
   author: string;
   status: 'draft' | 'published';
+  hidden?: boolean;
   published_at: string;
   seo_title?: string;
   seo_description?: string;

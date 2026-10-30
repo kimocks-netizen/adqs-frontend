@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlusCircle, Pencil, Trash2, Search, FileText } from 'lucide-react';
+import { PlusCircle, Pencil, Trash2, Search, FileText, Eye, EyeOff } from 'lucide-react';
 import { useArticleStore } from '@/stores/useArticleStore';
 import { ROUTES } from '@/routes/routes';
 
@@ -10,15 +10,16 @@ function formatDate(iso: string) {
 }
 
 export default function ArticlesPage() {
-  const { articles, remove } = useArticleStore();
+  const { articles, remove, toggleHidden } = useArticleStore();
   const [search, setSearch] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft' | 'hidden'>('all');
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const filtered = articles.filter((a) => {
     const matchSearch =
       a.title.toLowerCase().includes(search.toLowerCase()) ||
       a.category.toLowerCase().includes(search.toLowerCase());
+    if (filterStatus === 'hidden') return matchSearch && !!a.hidden;
     const matchStatus = filterStatus === 'all' || a.status === filterStatus;
     return matchSearch && matchStatus;
   });
@@ -35,7 +36,7 @@ export default function ArticlesPage() {
           to={ROUTES.ADMIN_ARTICLE_NEW}
           className="flex items-center gap-2 bg-brand-gradient text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity"
         >
-          <PlusCircle className="w-4 h-4" /> New Article
+          <PlusCircle className="w-4 h-4" /> <span className="hidden sm:inline">New </span>Article
         </Link>
       </div>
 
@@ -51,7 +52,7 @@ export default function ArticlesPage() {
           />
         </div>
         <div className="flex gap-2">
-          {(['all', 'published', 'draft'] as const).map((s) => (
+          {(['all', 'published', 'draft', 'hidden'] as const).map((s) => (
             <button
               key={s}
               onClick={() => setFilterStatus(s)}
@@ -87,7 +88,7 @@ export default function ArticlesPage() {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {filtered.map((article) => (
-                <tr key={article.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={article.id} className={`hover:bg-gray-50 transition-colors ${article.hidden ? 'opacity-50' : ''}`}>
                   <td className="px-5 py-3.5">
                     <p className="font-semibold text-gray-800 line-clamp-1">{article.title}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{article.slug}</p>
@@ -95,16 +96,27 @@ export default function ArticlesPage() {
                   <td className="px-5 py-3.5 text-gray-500 hidden md:table-cell">{article.category}</td>
                   <td className="px-5 py-3.5 text-gray-400 hidden sm:table-cell">{formatDate(article.published_at)}</td>
                   <td className="px-5 py-3.5">
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                      article.status === 'published'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-yellow-100 text-yellow-700'
-                    }`}>
-                      {article.status}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                        article.hidden
+                          ? 'bg-gray-100 text-gray-400'
+                          : article.status === 'published'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {article.hidden ? 'hidden' : article.status}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-end gap-3">
+                      <button
+                        onClick={() => toggleHidden(article.id)}
+                        title={article.hidden ? 'Show article' : 'Hide article'}
+                        className={`transition-colors ${article.hidden ? 'text-brand-secondary hover:text-brand-primary' : 'text-gray-300 hover:text-brand-secondary'}`}
+                      >
+                        {article.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                      </button>
                       <Link
                         to={ROUTES.ADMIN_ARTICLE_EDIT(article.id)}
                         className="text-gray-400 hover:text-brand-primary transition-colors"

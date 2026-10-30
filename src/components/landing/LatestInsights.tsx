@@ -13,7 +13,7 @@ function formatDate(iso: string) {
 }
 
 export default function LatestInsights() {
-  const articles = useArticleStore((s) => s.articles).filter((a) => a.status === 'published').slice(0, 3);
+  const articles = useArticleStore((s) => s.articles).filter((a) => a.status === 'published' && !a.hidden).slice(0, 3);
 
   return (
     <section className="bg-muted/40">

@@ -13,7 +13,7 @@ function formatDate(iso: string) {
 export default function ArticleDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const articles = useArticleStore((s) => s.articles);
-  const article = articles.find((a) => a.slug === slug);
+  const article = articles.find((a) => a.slug === slug && !a.hidden);
 
   const related = useMemo(
     () => articles.filter((a) => a.slug !== slug && a.category === article?.category).slice(0, 3),

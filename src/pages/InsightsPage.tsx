@@ -15,7 +15,7 @@ function formatDate(iso: string) {
 }
 
 export default function InsightsPage() {
-  const articles = useArticleStore((s) => s.articles).filter((a) => a.status === 'published');
+  const articles = useArticleStore((s) => s.articles).filter((a) => a.status === 'published' && !a.hidden);
   const [activeCategory, setActiveCategory] = useState('All');
   const [query, setQuery] = useState('');
 
