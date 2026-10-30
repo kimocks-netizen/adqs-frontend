@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Scale, FileText, Users, Heart, Search, Handshake, CheckCircle2 } from 'lucide-react';
 import { dummyServices } from '@/data/services';
 import { ROUTES } from '@/routes/routes';
+import heroImg from '@/assets/law_hummer.png';
 import ContactCTA from '@/components/landing/ContactCTA';
 
 const ICONS = [Scale, FileText, Users, Heart, Search, Handshake];
@@ -11,14 +12,15 @@ export default function ServicesPage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-soft">
-        <div className="pointer-events-none absolute -top-24 right-0 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl" />
-        <div className="mx-auto max-w-7xl px-6 pb-20 pt-32 sm:pt-36">
+      <section className="relative overflow-hidden h-[60vh] min-h-[420px] flex items-end">
+        <img src={heroImg} alt="" className="absolute inset-0 w-full h-full object-cover object-center" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/50 to-black/30" />
+        <div className="relative mx-auto max-w-7xl px-6 pb-16 pt-32 w-full">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-sm font-medium text-secondary"
+            className="text-sm font-semibold tracking-widest uppercase text-yellow-300 mb-3"
           >
             What we do
           </motion.p>
@@ -26,20 +28,18 @@ export default function ServicesPage() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-3 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl"
+            className="max-w-3xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl text-white mb-4"
           >
-            Our <span className="text-brand-gradient">Services</span>
+            Our Services
           </motion.h1>
           <motion.p
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="max-w-2xl text-lg leading-relaxed text-white/80"
           >
-            Our services cover legal and regulatory research, compliance, contractual
-            documentation, labour relations, human rights, policy and dispute-related
-            advisory support. The scope of each engagement depends on the issue, the
-            client's needs and the services the company is able to provide.
+            Legal and regulatory research, compliance, contracts, labour relations,
+            human rights, policy and dispute-related advisory support.
           </motion.p>
         </div>
       </section>

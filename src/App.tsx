@@ -14,6 +14,7 @@ import InsightsPage from '@/pages/InsightsPage';
 import ArticleDetailPage from '@/pages/ArticleDetailPage';
 import ContactPage from '@/pages/ContactPage';
 import PrivacyPage from '@/pages/PrivacyPage';
+import DisclaimerPage from '@/pages/DisclaimerPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 
 import AdminLoginPage from '@/pages/admin/AdminLoginPage';
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
       { path: '/insights/:slug', element: <ArticleDetailPage /> },
       { path: '/contact', element: <ContactPage /> },
       { path: '/privacy', element: <PrivacyPage /> },
+      { path: '/disclaimer', element: <DisclaimerPage /> },
     ],
   },
   { path: '/admin/login', element: <AdminLoginPage /> },
