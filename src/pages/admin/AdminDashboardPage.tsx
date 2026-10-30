@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
         <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Content</p>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {STATS.map(({ label, value, icon: Icon, color, sub }, i) => (
-            <motion.div key={label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }} className="bg-white rounded-xl p-4 shadow-card border border-gray-100 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+            <motion.div key={label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }} className="bg-white rounded-xl p-3 shadow-card border border-gray-100 flex items-center gap-3">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${color}`}><Icon className="w-4 h-4" /></div>
               <div>
                 <p className="text-lg font-bold text-brand-primary leading-none">{value}</p>
@@ -93,7 +93,7 @@ export default function AdminDashboardPage() {
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {ANALYTICS_STATS.map(({ label, value, icon: Icon, color, sub }, i) => (
-            <motion.div key={label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 + i * 0.07 }} className="bg-white rounded-xl p-4 shadow-card border border-gray-100 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+            <motion.div key={label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 + i * 0.07 }} className="bg-white rounded-xl p-3 shadow-card border border-gray-100 flex items-center gap-3">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${color}`}><Icon className="w-4 h-4" /></div>
               <div>
                 <p className="text-lg font-bold text-brand-primary leading-none">{value}</p>

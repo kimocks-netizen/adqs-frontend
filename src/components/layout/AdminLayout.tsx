@@ -104,31 +104,29 @@ export default function AdminLayout() {
         </header>
 
         {/* Page content — extra bottom padding on mobile for the bottom nav */}
-        <main className="flex-1 p-4 md:p-6 overflow-auto pb-24 md:pb-6">
+        <main className="flex-1 p-4 md:p-6 overflow-auto pb-16 md:pb-6">
           <Outlet />
         </main>
       </div>
 
       {/* ── Mobile bottom nav (WhatsApp style, hidden on desktop) ── */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-100 shadow-lg">
-        <div className="flex items-center justify-around h-16">
+        <div className="flex items-center justify-around h-12">
           {NAV.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
               end={end}
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${
+                `flex items-center justify-center gap-1.5 flex-1 h-full text-xs font-semibold transition-colors ${
                   isActive ? 'text-brand-primary' : 'text-gray-400 hover:text-gray-600'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
-                  <div className={`p-1.5 rounded-xl transition-colors ${isActive ? 'bg-brand-primary/10' : ''}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <span className={`text-[10px] font-semibold ${isActive ? 'text-brand-primary' : 'text-gray-400'}`}>
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span className={`text-[11px] font-semibold ${isActive ? 'text-brand-primary' : 'text-gray-400'}`}>
                     {label}
                   </span>
                 </>
