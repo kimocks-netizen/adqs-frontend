@@ -311,15 +311,26 @@ export default function ContactPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-brand-gradient rounded-2xl p-6 text-white text-sm"
+            className="bg-soft rounded-2xl p-6 text-sm border border-gray-100"
           >
-            <p className="font-semibold mb-1">Disclaimer</p>
-            <p className="text-white/70 text-xs leading-relaxed">
+            <p className="font-semibold text-brand-primary mb-1">Disclaimer</p>
+            <p className="text-gray-500 text-xs leading-relaxed">
               Submitting this form does not create an attorney-client relationship. ADQS will respond to enquiries at its discretion.
             </p>
           </motion.div>
         </aside>
       </div>
+      {/* Disclaimer strip */}
+      <div className="bg-gray-50 border-y border-gray-100">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+          <span className="text-xs font-bold uppercase tracking-widest text-brand-primary shrink-0">Disclaimer</span>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            Submitting this form does not create an attorney-client relationship. ADQS will respond to enquiries at its discretion.
+            For formal legal representation, please consult an admitted attorney.
+          </p>
+        </div>
+      </div>
+
       {/* Bottom CTA strip */}
       <section className="relative overflow-hidden">
         {/* Background image with overlay */}

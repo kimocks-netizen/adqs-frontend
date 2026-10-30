@@ -11,8 +11,8 @@ export default function HomePage() {
       <Hero />
       <ServicesOverview />
       <AboutStrip />
-      <FounderSection />
       <LatestInsights />
+      <FounderSection />
       <ContactCTA />
     </>
   );
