@@ -119,18 +119,29 @@ function PageHero() {
 function CompanyOverview() {
   return (
     <section className="mx-auto max-w-7xl px-6 py-20">
+      {/* Heading above both columns */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 0.6 }}
+        className="mb-8"
+      >
+        <p className="text-sm font-medium text-secondary">Our story</p>
+        <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+          Research-led. Results-focused.
+        </h2>
+      </motion.div>
+
       <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
+        {/* Left — body text */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <p className="text-sm font-medium text-secondary">Our story</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Research-led. Results-focused.
-          </h2>
-          <div className="mt-5 space-y-4 leading-relaxed text-muted-foreground">
+          <div className="space-y-4 leading-relaxed text-muted-foreground text-justify">
             <p>
               Adequate Strategies Legal Consulting is the public-facing consulting and
               advisory practice of Adequate Strategies (Pty) Ltd. We support individuals,
@@ -154,14 +165,8 @@ function CompanyOverview() {
           </div>
         </motion.div>
 
-        {/* Stats / highlights */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="grid grid-cols-2 gap-4"
-        >
+        {/* Right — stats cards, aligned to top of paragraph text */}
+        <div className="grid grid-cols-2 gap-4">
           {[
             { k: '6', v: 'Service areas', sub: 'Compliance to dispute resolution' },
             { k: 'SA', v: 'Based in South Africa', sub: 'Serving clients nationally' },
@@ -170,19 +175,19 @@ function CompanyOverview() {
           ].map(({ k, v, sub }, i) => (
             <motion.div
               key={v}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 32 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.4, delay: 0.1 + i * 0.07 }}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-card"
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.55, delay: 0.15 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-card hover:-translate-y-1 transition-transform duration-300"
             >
-              <div className="absolute inset-x-0 top-0 h-[2px] bg-gold-gradient opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="text-3xl font-semibold tracking-tight text-brand-gradient">{k}</div>
-              <div className="mt-1 text-sm font-medium">{v}</div>
+              <div className="absolute inset-x-0 top-0 h-[3px] bg-gold-gradient opacity-0 transition-opacity group-hover:opacity-100" />
+              <div className="text-3xl font-bold tracking-tight text-brand-gradient">{k}</div>
+              <div className="mt-1 text-sm font-semibold">{v}</div>
               <div className="mt-0.5 text-xs text-muted-foreground">{sub}</div>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
@@ -280,7 +285,7 @@ function FounderProfile() {
           transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           className="lg:col-span-8"
         >
-          <div className="space-y-4 leading-relaxed text-muted-foreground">
+          <div className="space-y-4 leading-relaxed text-muted-foreground text-justify">
             <p>
               Bright Ngwenyama Gunde holds an LLB degree from the University of the
               Witwatersrand, Johannesburg. His professional background spans legal research
