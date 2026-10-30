@@ -103,10 +103,6 @@ export default function AdminDashboardPage() {
             </motion.div>
           ))}
         </div>
-      </div>              </div>
-            </motion.div>
-          ))}
-        </div>
       </div>
 
       {/* Quick actions */}
