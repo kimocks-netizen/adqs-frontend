@@ -13,7 +13,7 @@ export default function ContactCTA() {
         className="absolute inset-0 w-full h-full object-cover object-center"
       />
       {/* Navy overlay */}
-      <div className="absolute inset-0 bg-brand-gradient opacity-90" />
+      <div className="absolute inset-0 bg-brand-gradient opacity-75" />
 
       <div className="relative mx-auto max-w-7xl px-6 py-24">
         <motion.div
