@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogIn } from 'lucide-react';
 import { ROUTES } from '@/routes/routes';
 import logo from '@/assets/logo.jpg';
 
@@ -96,6 +96,16 @@ export default function Navbar() {
         {/* CTA + hamburger */}
         <div className="flex items-center gap-2">
           <Link
+            to={ROUTES.ADMIN_LOGIN}
+            className={`hidden rounded-full px-4 py-2 text-sm font-semibold transition hover:opacity-90 items-center gap-1.5 sm:inline-flex ${
+              transparent
+                ? 'text-white/70 hover:text-white'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <LogIn className="h-3.5 w-3.5" /> Login
+          </Link>
+          <Link
             to={ROUTES.CONTACT}
             className={`hidden rounded-full px-5 py-2 text-sm font-semibold transition hover:opacity-90 sm:inline-flex ${
               transparent
@@ -148,6 +158,14 @@ export default function Navbar() {
                 )}
               </NavLink>
             ))}
+            <Link
+              to={ROUTES.ADMIN_LOGIN}
+              className={`flex items-center gap-2 border-b py-3.5 text-sm last:border-0 ${
+                transparent ? 'border-white/10 text-white/70' : 'border-border/40 text-muted-foreground'
+              }`}
+            >
+              <LogIn className="h-4 w-4" /> Login
+            </Link>
             <Link
               to={ROUTES.CONTACT}
               className="mb-1 mt-3 inline-flex items-center justify-center rounded-full bg-secondary px-5 py-3 text-sm font-semibold text-secondary-foreground"
