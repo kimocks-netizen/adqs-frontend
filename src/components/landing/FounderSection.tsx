@@ -43,14 +43,14 @@ export default function FounderSection() {
           <p className="mt-1 text-sm font-medium text-muted-foreground">
             Founder & Principal Consultant
           </p>
-          <p className="mt-5 leading-relaxed text-muted-foreground">
+          <p className="mt-5 leading-relaxed text-muted-foreground text-justify">
             Bright Ngwenyama Gunde is a legal consultant with experience spanning
             regulatory compliance, labour relations, human rights and legal research.
             He founded Adequate Strategies Legal Consulting to provide accessible,
             research-informed legal advisory services to businesses and individuals
             across South Africa.
           </p>
-          <p className="mt-4 leading-relaxed text-muted-foreground">
+          <p className="mt-4 leading-relaxed text-muted-foreground text-justify">
             His work is guided by a commitment to clarity, practical outcomes and
             the belief that sound legal guidance should be within reach of those
             who need it most.

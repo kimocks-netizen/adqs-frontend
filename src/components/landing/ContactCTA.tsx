@@ -5,8 +5,17 @@ import { ROUTES } from '@/routes/routes';
 
 export default function ContactCTA() {
   return (
-    <section className="bg-brand-gradient">
-      <div className="mx-auto max-w-7xl px-6 py-20">
+    <section className="relative overflow-hidden">
+      {/* Background image */}
+      <img
+        src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1600&q=80"
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover object-center"
+      />
+      {/* Navy overlay */}
+      <div className="absolute inset-0 bg-brand-gradient opacity-90" />
+
+      <div className="relative mx-auto max-w-7xl px-6 py-24">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -17,7 +26,7 @@ export default function ContactCTA() {
           <h2 className="max-w-2xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             Ready to get practical legal guidance?
           </h2>
-          <p className="max-w-xl text-white/70">
+          <p className="max-w-xl text-white/80">
             Tell us about your situation and we'll respond with clarity on how we
             can help — no jargon, no obligation.
           </p>
