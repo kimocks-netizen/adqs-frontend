@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Clock, CheckCircle, Send } from 'lucide-react';
 import { dummyServices } from '@/data/services';
+import { ROUTES } from '@/routes/routes';
 
 const AREAS = dummyServices.map((s) => s.title);
 
@@ -318,6 +320,50 @@ export default function ContactPage() {
           </motion.div>
         </aside>
       </div>
+      {/* Bottom CTA strip */}
+      <section className="relative overflow-hidden">
+        {/* Background image with overlay */}
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1600&q=80"
+            alt=""
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-brand-gradient opacity-90" />
+        </div>
+        <div className="relative max-w-3xl mx-auto px-6 py-20 text-center text-white">
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-3xl sm:text-4xl font-bold mb-4"
+          >
+            Ready to get practical legal guidance?
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-white/80 text-lg mb-8 max-w-xl mx-auto"
+          >
+            Tell us about your situation and we'll respond with clarity on how we can help — no jargon, no obligation.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
+            <Link
+              to={ROUTES.CONTACT}
+              className="inline-block bg-brand-secondary text-white font-bold px-8 py-3.5 rounded-full hover:opacity-90 transition-opacity shadow-gold"
+            >
+              Make an Enquiry
+            </Link>
+          </motion.div>
+        </div>
+      </section>
     </div>
   );
 }
