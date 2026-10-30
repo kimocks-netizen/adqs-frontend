@@ -2,18 +2,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { ROUTES } from '@/routes/routes';
 import logo from '@/assets/logo.jpg';
 
-// Simulated credentials — replace with real API in Phase 14
-const DEMO_EMAIL = 'admin@adqs.co.za';
-const DEMO_PASSWORD = 'adqs2025';
-
 export default function AdminLoginPage() {
-  const setAuth = useAuthStore((s) => s.setAuth);
   const navigate = useNavigate();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -23,22 +15,15 @@ export default function AdminLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
     if (!email.trim() || !password.trim()) {
       setError('Please enter your email and password.');
       return;
     }
-
     setLoading(true);
-    // Simulate network delay
     await new Promise((r) => setTimeout(r, 900));
-
-    if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
-      setAuth(
-        { id: '1', email: DEMO_EMAIL, name: 'Bright Ngwenyama Gunde', role: 'Administrator' },
-        'demo-token-adqs-2025'
-      );
-      navigate(ROUTES.ADMIN);
+    if (email === 'admin@adqs.co.za' && password === 'adqs2025') {
+      sessionStorage.setItem('adqs_admin', '1');
+      navigate('/admin', { replace: true });
     } else {
       setError('Invalid email or password. Please try again.');
       setLoading(false);
@@ -82,7 +67,7 @@ export default function AdminLoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@adqs.co.za"
+                  placeholder="example@your-site.com"
                   className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50"
                 />
               </div>

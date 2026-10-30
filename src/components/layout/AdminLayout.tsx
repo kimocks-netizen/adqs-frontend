@@ -1,5 +1,4 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/useAuthStore';
 import { ROUTES } from '@/routes/routes';
 import {
   LayoutDashboard,
@@ -18,18 +17,17 @@ const NAV = [
 ];
 
 export default function AdminLayout() {
-  const { logout, user } = useAuthStore((s) => ({ logout: s.logout, user: s.user }));
   const navigate = useNavigate();
 
   function handleLogout() {
-    logout();
+    sessionStorage.removeItem('adqs_admin');
     navigate(ROUTES.ADMIN_LOGIN);
   }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="flex w-60 flex-col bg-primary text-white shrink-0">
+      <aside className="fixed top-0 left-0 h-screen w-60 flex flex-col bg-primary text-white shrink-0 z-40">
         {/* Logo */}
         <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
           <img src={logo} alt="ADQS" className="h-8 w-auto object-contain rounded" />
@@ -68,8 +66,8 @@ export default function AdminLayout() {
               <User className="w-4 h-4 text-white" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold truncate">{user?.name ?? 'Administrator'}</p>
-              <p className="text-[10px] text-white/50 truncate">{user?.email}</p>
+              <p className="text-xs font-semibold truncate">Administrator</p>
+              <p className="text-[10px] text-white/50 truncate">admin@adqs.co.za</p>
             </div>
           </div>
           <button
@@ -82,12 +80,12 @@ export default function AdminLayout() {
       </aside>
 
       {/* Main */}
-      <div className="flex flex-1 flex-col min-w-0">
+      <div className="flex flex-1 flex-col min-w-0 ml-60">
         {/* Topbar */}
         <header className="h-14 flex items-center justify-between px-6 bg-white border-b border-gray-100 shrink-0">
           <p className="text-sm text-gray-500">Adequate Strategies — Content Management</p>
           <span className="text-xs bg-brand-secondary/10 text-brand-secondary font-semibold px-3 py-1 rounded-full">
-            {user?.role ?? 'Admin'}
+            Admin
           </span>
         </header>
 

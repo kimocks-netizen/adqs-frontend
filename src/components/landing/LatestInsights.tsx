@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, User } from 'lucide-react';
-import { dummyArticles } from '@/data/articles';
+import { useArticleStore } from '@/stores/useArticleStore';
 import { ROUTES } from '@/routes/routes';
 
 function formatDate(iso: string) {
@@ -13,7 +13,7 @@ function formatDate(iso: string) {
 }
 
 export default function LatestInsights() {
-  const articles = dummyArticles.slice(0, 3);
+  const articles = useArticleStore((s) => s.articles).filter((a) => a.status === 'published').slice(0, 3);
 
   return (
     <section className="bg-muted/40">

@@ -18,9 +18,23 @@ export interface AuthState {
 
 const USER_KEY = 'adqs_user';
 
+// Hydrate synchronously so the router sees the correct auth state on first render
+function getInitialAuth(): Pick<AuthState, 'user' | 'isAuthenticated'> {
+  const token = getToken();
+  const stored = localStorage.getItem(USER_KEY);
+  if (token && stored) {
+    try {
+      return { user: JSON.parse(stored), isAuthenticated: true };
+    } catch {
+      clearToken();
+      localStorage.removeItem(USER_KEY);
+    }
+  }
+  return { user: null, isAuthenticated: false };
+}
+
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  isAuthenticated: !!getToken(),
+  ...getInitialAuth(),
 
   setAuth: (user, token) => {
     setToken(token);
@@ -34,16 +48,5 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null, isAuthenticated: false });
   },
 
-  hydrate: () => {
-    const token = getToken();
-    const stored = localStorage.getItem(USER_KEY);
-    if (token && stored) {
-      try {
-        set({ user: JSON.parse(stored), isAuthenticated: true });
-      } catch {
-        clearToken();
-        localStorage.removeItem(USER_KEY);
-      }
-    }
-  },
+  hydrate: () => {}, // no-op — hydration is now synchronous at store creation
 }));

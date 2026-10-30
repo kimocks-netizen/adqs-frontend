@@ -1,7 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { useEffect } from 'react';
 import { Providers } from '@/providers/Providers';
-import { useAuthStore } from '@/stores/useAuthStore';
 import { ProtectedRoute } from '@/routes/ProtectedRoute';
 import PublicLayout from '@/components/layout/PublicLayout';
 import AdminLayout from '@/components/layout/AdminLayout';
@@ -58,8 +56,6 @@ const router = createBrowserRouter([
 ]);
 
 function AppRouter() {
-  const hydrate = useAuthStore((s) => s.hydrate);
-  useEffect(() => { hydrate(); }, [hydrate]);
   return <RouterProvider router={router} />;
 }
 

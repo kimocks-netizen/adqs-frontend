@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, User, ArrowRight, Search } from 'lucide-react';
-import { dummyArticles, CATEGORIES } from '@/data/articles';
+import { useArticleStore } from '@/stores/useArticleStore';
+import { CATEGORIES } from '@/data/articles';
 import { ROUTES } from '@/routes/routes';
 
 function formatDate(iso: string) {
@@ -14,11 +15,12 @@ function formatDate(iso: string) {
 }
 
 export default function InsightsPage() {
+  const articles = useArticleStore((s) => s.articles).filter((a) => a.status === 'published');
   const [activeCategory, setActiveCategory] = useState('All');
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
-    return dummyArticles.filter((a) => {
+    return articles.filter((a) => {
       const matchCat = activeCategory === 'All' || a.category === activeCategory;
       const q = query.toLowerCase();
       const matchQ = !q || a.title.toLowerCase().includes(q) || a.introduction.toLowerCase().includes(q);

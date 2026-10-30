@@ -9,63 +9,38 @@ import {
   PlusCircle,
   Eye,
 } from 'lucide-react';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { dummyArticles } from '@/data/articles';
+import { useArticleStore } from '@/stores/useArticleStore';
 import { ROUTES } from '@/routes/routes';
 
 // Dummy enquiries for simulation
-const DUMMY_ENQUIRIES = [
-  { id: '1', name: 'Thabo Mokoena', area: 'Labour Relations', date: '2025-01-14', status: 'New' },
-  { id: '2', name: 'Nomsa Dlamini', area: 'Regulatory Compliance', date: '2025-01-13', status: 'New' },
-  { id: '3', name: 'Sipho Khumalo', area: 'Contracts & Commercial', date: '2025-01-12', status: 'Read' },
-  { id: '4', name: 'Lerato Sithole', area: 'Human Rights', date: '2025-01-11', status: 'Read' },
-  { id: '5', name: 'Andile Nkosi', area: 'General Enquiry', date: '2025-01-10', status: 'Replied' },
-];
-
-const STATS = [
-  {
-    label: 'Total Documents',
-    value: '12',
-    icon: FolderOpen,
-    color: 'bg-blue-50 text-blue-600',
-    sub: 'Across 6 folders',
-  },
-  {
-    label: 'Published Articles',
-    value: String(dummyArticles.length),
-    icon: FileText,
-    color: 'bg-green-50 text-green-600',
-    sub: 'All published',
-  },
-  {
-    label: 'Enquiries',
-    value: String(DUMMY_ENQUIRIES.length),
-    icon: Mail,
-    color: 'bg-yellow-50 text-yellow-600',
-    sub: '2 new unread',
-  },
-  {
-    label: 'Pending Replies',
-    value: '2',
-    icon: Clock,
-    color: 'bg-red-50 text-red-600',
-    sub: 'Awaiting response',
-  },
-];
-
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 export default function AdminDashboardPage() {
-  const user = useAuthStore((s) => s.user);
+  const articleCount = useArticleStore((s) => s.articles.length);
+
+  const DUMMY_ENQUIRIES = [
+    { id: '1', name: 'Thabo Mokoena', area: 'Labour Relations', date: '2025-01-14', status: 'New' },
+    { id: '2', name: 'Nomsa Dlamini', area: 'Regulatory Compliance', date: '2025-01-13', status: 'New' },
+    { id: '3', name: 'Sipho Khumalo', area: 'Contracts & Commercial', date: '2025-01-12', status: 'Read' },
+    { id: '4', name: 'Lerato Sithole', area: 'Human Rights', date: '2025-01-11', status: 'Read' },
+    { id: '5', name: 'Andile Nkosi', area: 'General Enquiry', date: '2025-01-10', status: 'Replied' },
+  ];
+
+  const STATS = [
+    { label: 'Total Documents', value: '12', icon: FolderOpen, color: 'bg-blue-50 text-blue-600', sub: 'Across 6 folders' },
+    { label: 'Published Articles', value: String(articleCount), icon: FileText, color: 'bg-green-50 text-green-600', sub: 'All published' },
+    { label: 'Enquiries', value: String(DUMMY_ENQUIRIES.length), icon: Mail, color: 'bg-yellow-50 text-yellow-600', sub: '2 new unread' },
+    { label: 'Pending Replies', value: '2', icon: Clock, color: 'bg-red-50 text-red-600', sub: 'Awaiting response' },
+  ];
 
   return (
     <div className="space-y-8 max-w-5xl">
       {/* Greeting */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold text-brand-primary">
-          Welcome back, {user?.name?.split(' ')[0] ?? 'Admin'} 👋
+          Welcome back, Admin 👋
         </h1>
         <p className="text-sm text-gray-500 mt-1">Here's what's happening on your site today.</p>
       </motion.div>

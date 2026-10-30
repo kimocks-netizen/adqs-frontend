@@ -2,82 +2,22 @@ import { useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, User, ChevronRight, ArrowLeft } from 'lucide-react';
-import { dummyArticles, CATEGORIES } from '@/data/articles';
+import { useArticleStore } from '@/stores/useArticleStore';
+import { CATEGORIES } from '@/data/articles';
 import { ROUTES } from '@/routes/routes';
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-ZA', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
-
-/** Minimal markdown-to-JSX: renders ##, **bold**, - lists, paragraphs */
-function RenderBody({ body }: { body: string }) {
-  const lines = body.split('\n');
-  const elements: React.ReactNode[] = [];
-  let listBuffer: string[] = [];
-
-  const flushList = (key: string) => {
-    if (listBuffer.length) {
-      elements.push(
-        <ul key={key} className="list-disc list-inside space-y-1 text-gray-600 mb-4 pl-2">
-          {listBuffer.map((item, i) => (
-            <li key={i} dangerouslySetInnerHTML={{ __html: parseBold(item) }} />
-          ))}
-        </ul>
-      );
-      listBuffer = [];
-    }
-  };
-
-  const parseBold = (text: string) =>
-    text.replace(/\*\*(.+?)\*\*/g, '<strong class="text-brand-primary font-semibold">$1</strong>');
-
-  lines.forEach((line, i) => {
-    if (line.startsWith('## ')) {
-      flushList(`list-${i}`);
-      elements.push(
-        <h2 key={i} className="text-xl font-bold text-brand-primary mt-8 mb-3 border-b border-gray-100 pb-2">
-          {line.replace('## ', '')}
-        </h2>
-      );
-    } else if (line.startsWith('### ')) {
-      flushList(`list-${i}`);
-      elements.push(
-        <h3 key={i} className="text-base font-bold text-brand-primary mt-6 mb-2">
-          {line.replace('### ', '')}
-        </h3>
-      );
-    } else if (line.startsWith('- ')) {
-      listBuffer.push(line.replace('- ', ''));
-    } else if (/^\d+\.\s/.test(line)) {
-      flushList(`list-${i}`);
-      elements.push(
-        <p key={i} className="text-gray-600 mb-1 pl-2" dangerouslySetInnerHTML={{ __html: parseBold(line) }} />
-      );
-    } else if (line.trim() === '') {
-      flushList(`list-${i}`);
-    } else {
-      flushList(`list-${i}`);
-      elements.push(
-        <p key={i} className="text-gray-600 leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: parseBold(line) }} />
-      );
-    }
-  });
-  flushList('final');
-
-  return <div>{elements}</div>;
+  return new Date(iso).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 export default function ArticleDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const article = dummyArticles.find((a) => a.slug === slug);
+  const articles = useArticleStore((s) => s.articles);
+  const article = articles.find((a) => a.slug === slug);
 
   const related = useMemo(
-    () => dummyArticles.filter((a) => a.slug !== slug && a.category === article?.category).slice(0, 3),
-    [slug, article]
+    () => articles.filter((a) => a.slug !== slug && a.category === article?.category).slice(0, 3),
+    [articles, slug, article]
   );
 
   if (!article) return <Navigate to={ROUTES.INSIGHTS} replace />;
@@ -128,7 +68,7 @@ export default function ArticleDetailPage() {
             {article.introduction}
           </p>
 
-          <RenderBody body={article.body} />
+          <div className="prose prose-sm max-w-none text-gray-700" dangerouslySetInnerHTML={{ __html: article.body }} />
 
           {/* Back link */}
           <div className="mt-12 pt-6 border-t border-gray-100">
