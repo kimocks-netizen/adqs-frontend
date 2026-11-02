@@ -37,7 +37,7 @@ const SECTIONS = [
   },
   {
     title: '9. Contact us',
-    body: `If you have any questions about this Privacy Notice or wish to exercise your rights, please contact us:\n\nAdequate Strategies (Pty) Ltd\nEmail: info@adqs.co.za\nPhone: +27 17 819 0000\nAddress: 23 Joubert Street, Ermelo, Mpumalanga, 2350\n\nYou may also lodge a complaint with the Information Regulator of South Africa at inforeg.org.za.`,
+    body: `If you have any questions about this Privacy Notice or wish to exercise your rights, please contact us:\n\nAdequate Strategies (Pty) Ltd\nEmail: info@adqs.co.za\nPhone: +27 66 023 0095\nAddress: 252 Cole Road, Shere, Pretoria, Gauteng, 0084\n\nYou may also lodge a complaint with the Information Regulator of South Africa at inforeg.org.za.`,
   },
   {
     title: '10. Updates to this notice',

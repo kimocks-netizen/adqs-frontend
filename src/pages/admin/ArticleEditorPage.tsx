@@ -131,7 +131,8 @@ export default function ArticleEditorPage() {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-xl shadow-card border border-gray-100 p-6 space-y-5">
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Title *</label>
-              <input name="title" value={form.title} onChange={handleChange} placeholder="Article title…" className={inputClass} />
+              <input name="title" value={form.title} onChange={handleChange} placeholder="Article title…" maxLength={70} className={inputClass} />
+              <p className={`text-xs mt-1 text-right ${form.title.length > 60 ? 'text-red-400' : 'text-gray-400'}`}>{form.title.length}/70</p>
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">

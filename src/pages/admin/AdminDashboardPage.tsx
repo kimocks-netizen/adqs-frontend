@@ -202,7 +202,7 @@ export default function AdminDashboardPage() {
                     <p className="text-xs text-gray-400 shrink-0 ml-2">{s.views}</p>
                   </div>
                   <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-brand-gradient rounded-full" style={{ width: `${pct}%` }} />
+                    <div className="h-full bg-gold-gradient rounded-full" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );

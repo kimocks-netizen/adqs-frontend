@@ -33,7 +33,7 @@ const SECTIONS = [
   },
   {
     title: '8. Contact',
-    body: `If you have any questions about this Disclaimer, please contact us:\n\nAdequate Strategies (Pty) Ltd\nEmail: info@adqs.co.za\nPhone: +27 17 819 0000\nAddress: 23 Joubert Street, Ermelo, Mpumalanga, 2350`,
+    body: `If you have any questions about this Disclaimer, please contact us:\n\nAdequate Strategies (Pty) Ltd\nEmail: info@adqs.co.za\nPhone: +27 66 023 0095\nAddress: 252 Cole Road, Shere, Pretoria, Gauteng, 0084`,
   },
 ];
 

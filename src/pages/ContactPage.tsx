@@ -29,12 +29,12 @@ const INFO = [
   {
     icon: MapPin,
     label: 'Office',
-    value: '23 Joubert Street, Ermelo, Mpumalanga, 2350',
+    value: '252 Cole Road, Shere, Pretoria, Gauteng, 0084',
   },
   {
     icon: Phone,
     label: 'Phone',
-    value: '+27 17 819 0000',
+    value: '+27 66 023 0095',
   },
   {
     icon: Mail,

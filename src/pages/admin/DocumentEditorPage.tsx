@@ -184,7 +184,7 @@ export default function DocumentEditorPage() {
             <img src={logo} alt="ADQS" style={{ height: '40px', width: 'auto', borderRadius: '4px' }} />
             <div>
               <div style={{ fontWeight: 700, fontSize: '13px', color: '#0B2854' }}>Adequate Strategies (Pty) Ltd</div>
-              <div style={{ fontSize: '11px', color: '#888' }}>Legal Consulting · Ermelo, Mpumalanga</div>
+              <div style={{ fontSize: '11px', color: '#888' }}>Legal Consulting · Shere, Pretoria, Gauteng</div>
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -209,7 +209,7 @@ export default function DocumentEditorPage() {
 
         {/* Footer */}
         <div style={{ position: 'relative', zIndex: 1, borderTop: '1px solid #e5e7eb', marginTop: '40px', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#aaa' }}>
-          <span>Adequate Strategies (Pty) Ltd · 23 Joubert Street, Ermelo · info@adqs.co.za</span>
+          <span>Adequate Strategies (Pty) Ltd · 252 Cole Road, Shere, Pretoria · info@adqs.co.za</span>
           <span>Confidential</span>
         </div>
       </div>

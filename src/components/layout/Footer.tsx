@@ -49,10 +49,10 @@ export default function Footer() {
               <Mail className="w-3.5 h-3.5 text-brand-secondary" /> info@adqs.co.za
             </a>
             <a href="tel:+27178190000" className="flex items-center gap-1.5 hover:text-white transition-colors">
-              <Phone className="w-3.5 h-3.5 text-brand-secondary" /> +27 17 819 0000
+              <Phone className="w-3.5 h-3.5 text-brand-secondary" /> +27 66 023 0095
             </a>
             <span className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-brand-secondary" /> Ermelo, Mpumalanga
+              <MapPin className="w-3.5 h-3.5 text-brand-secondary" /> Shere, Pretoria, Gauteng
             </span>
           </div>
 
