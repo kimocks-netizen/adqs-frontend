@@ -7,8 +7,8 @@ import {
 import logo from '@/assets/logo.jpg';
 
 const NAV = [
-  { to: ROUTES.ADMIN,           label: 'Dashboard', icon: LayoutDashboard, end: true  },
-  { to: ROUTES.ADMIN_DOCUMENTS, label: 'Documents', icon: FolderOpen,      end: false },
+  { to: ROUTES.ADMIN,           label: 'Home',      icon: LayoutDashboard, end: true  },
+  { to: ROUTES.ADMIN_DOCUMENTS, label: 'Docs',      icon: FolderOpen,      end: false },
   { to: ROUTES.ADMIN_ARTICLES,  label: 'Articles',  icon: FileText,        end: false },
   { to: ROUTES.ADMIN_ENQUIRIES, label: 'Enquiries', icon: Mail,            end: false },
 ];

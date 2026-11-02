@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   FolderOpen, Mail, FileText, Clock, ArrowRight,
   PlusCircle, Eye, TrendingUp, MousePointerClick,
-  BarChart2, Send,
+  BarChart2, Send, Smile,
 } from 'lucide-react';
 import { useArticleStore } from '@/stores/useArticleStore';
 import { ROUTES } from '@/routes/routes';
@@ -64,7 +64,9 @@ export default function AdminDashboardPage() {
     <div className="space-y-6">
       {/* Greeting */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold text-brand-primary">Welcome back, Admin 👋</h1>
+        <h1 className="text-2xl font-bold text-brand-primary flex items-center gap-2">
+          Welcome back, Admin <Smile className="w-5 h-5 text-brand-secondary" />
+        </h1>
         <p className="text-sm text-gray-500 mt-1">Here's what's happening on your site today.</p>
       </motion.div>
 
@@ -148,17 +150,17 @@ export default function AdminDashboardPage() {
           {/* Desktop table */}
           <table className="hidden sm:table w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                <th className="text-left px-6 py-2.5">Article</th>
-                <th className="text-right px-6 py-2.5">Views</th>
-                <th className="text-right px-6 py-2.5">Clicks</th>
+              <tr className="bg-gray-50 border-b border-gray-100 text-xs font-semibold uppercase tracking-wide">
+                <th className="text-left px-6 py-2.5 text-gray-400">Article</th>
+                <th className="text-right px-6 py-2.5 text-indigo-400">Views</th>
+                <th className="text-right px-6 py-2.5 text-brand-secondary">Clicks</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {TOP_ARTICLES.map((a, i) => (
                 <tr key={i} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-3 text-gray-700 font-medium">{a.title}</td>
-                  <td className="px-6 py-3 text-right text-gray-500">{a.views}</td>
+                  <td className="px-6 py-3 text-right"><span className="text-indigo-600 font-semibold">{a.views}</span></td>
                   <td className="px-6 py-3 text-right"><span className="text-brand-secondary font-semibold">{a.clicks}</span></td>
                 </tr>
               ))}
