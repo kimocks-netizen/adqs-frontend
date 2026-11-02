@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Providers } from '@/providers/Providers';
 import { ProtectedRoute } from '@/routes/ProtectedRoute';
+import { Analytics } from '@vercel/analytics/react';
 import PublicLayout from '@/components/layout/PublicLayout';
 import AdminLayout from '@/components/layout/AdminLayout';
 
@@ -68,6 +69,7 @@ export default function App() {
   return (
     <Providers>
       <AppRouter />
+      <Analytics />
     </Providers>
   );
 }
