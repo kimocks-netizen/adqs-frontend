@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
 import logo from '@/assets/logo.jpg';
 
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3002';
+
 export default function AdminLoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -20,12 +22,24 @@ export default function AdminLoginPage() {
       return;
     }
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 900));
-    if (email === 'admin@adqs.co.za' && password === 'adqs2025') {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.status !== 'success') {
+        setError(data.message || 'Invalid email or password.');
+        setLoading(false);
+        return;
+      }
       sessionStorage.setItem('adqs_admin', '1');
+      sessionStorage.setItem('adqs_token', data.token);
+      sessionStorage.setItem('adqs_user', JSON.stringify(data.data));
       navigate('/admin', { replace: true });
-    } else {
-      setError('Invalid email or password. Please try again.');
+    } catch {
+      setError('Unable to connect. Please try again.');
       setLoading(false);
     }
   };
@@ -39,14 +53,12 @@ export default function AdminLoginPage() {
           transition={{ duration: 0.5 }}
           className="bg-white rounded-2xl shadow-card overflow-hidden"
         >
-          {/* Top bar */}
           <div className="bg-brand-gradient px-8 py-7 text-white">
             <img src={logo} alt="ADQS" className="h-10 w-auto object-contain rounded mb-4" />
             <h1 className="text-xl font-bold">Admin Portal</h1>
             <p className="text-white/70 text-sm mt-1">Sign in to manage your content</p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="px-8 py-8 space-y-5">
             {error && (
               <motion.div
@@ -67,7 +79,7 @@ export default function AdminLoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="example@your-site.com"
+                  placeholder="your@email.com"
                   className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50"
                 />
               </div>
@@ -102,10 +114,6 @@ export default function AdminLoginPage() {
               {loading && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
               {loading ? 'Signing in…' : 'Sign In'}
             </button>
-
-            <p className="text-center text-xs text-gray-400 pt-1">
-              Demo: <span className="font-mono text-gray-500">admin@adqs.co.za</span> / <span className="font-mono text-gray-500">adqs2025</span>
-            </p>
           </form>
         </motion.div>
 

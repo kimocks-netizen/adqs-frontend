@@ -15,9 +15,12 @@ const NAV = [
 
 export default function AdminLayout() {
   const navigate = useNavigate();
+  const user = JSON.parse(sessionStorage.getItem('adqs_user') || '{"name":"Administrator","email":"admin@adqs.co.za"}');
 
   function handleLogout() {
     sessionStorage.removeItem('adqs_admin');
+    sessionStorage.removeItem('adqs_token');
+    sessionStorage.removeItem('adqs_user');
     navigate(ROUTES.ADMIN_LOGIN);
   }
 
@@ -64,8 +67,8 @@ export default function AdminLayout() {
               <User className="w-4 h-4 text-white" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold truncate">Administrator</p>
-              <p className="text-[10px] text-white/50 truncate">admin@adqs.co.za</p>
+              <p className="text-xs font-semibold truncate">{user.name}</p>
+              <p className="text-[10px] text-white/50 truncate">{user.email}</p>
             </div>
           </div>
           <button
