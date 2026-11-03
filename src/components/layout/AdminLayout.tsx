@@ -122,14 +122,14 @@ export default function AdminLayout() {
               end={end}
               className={({ isActive }) =>
                 `flex items-center justify-center gap-1.5 flex-1 h-full text-xs font-semibold transition-colors ${
-                  isActive ? 'text-brand-primary' : 'text-gray-400 hover:text-gray-600'
+                  isActive ? 'text-brand-secondary' : 'text-gray-400 hover:text-gray-600'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
                   <Icon className="w-4 h-4 shrink-0" />
-                  <span className={`text-[11px] font-semibold ${isActive ? 'text-brand-primary' : 'text-gray-400'}`}>
+                  <span className={`text-[11px] font-semibold ${isActive ? 'text-brand-secondary' : 'text-gray-400'}`}>
                     {label}
                   </span>
                 </>
