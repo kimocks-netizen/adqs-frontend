@@ -121,15 +121,13 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative min-h-[50vh] overflow-hidden">
-      {/* Video background */}
-      <VideoBackground clips={CLIPS} />
-
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
-
-      {/* Gold bottom edge */}
-      <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gold-gradient" />
+    <section className="relative min-h-[50vh]">
+      {/* Video fixed to viewport — only video stays, text scrolls */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <VideoBackground clips={CLIPS} />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+        <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gold-gradient" />
+      </div>
 
       {/* Content */}
       <div className="relative mx-auto flex min-h-[50vh] max-w-7xl flex-col justify-center px-6 pb-12 pt-16">
