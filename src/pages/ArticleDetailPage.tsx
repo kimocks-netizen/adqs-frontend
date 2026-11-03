@@ -10,6 +10,28 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+/** Convert markdown to HTML for legacy dummy data bodies */
+function markdownToHtml(text: string): string {
+  // Check if it's already HTML
+  if (text.trimStart().startsWith('<')) return text;
+  return text
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`)
+    .replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .split(/\n{2,}/)
+    .map((block) => {
+      if (block.startsWith('<h') || block.startsWith('<ul') || block.startsWith('<ol') || block.startsWith('<li')) return block;
+      return `<p>${block.replace(/\n/g, ' ')}</p>`;
+    })
+    .join('\n');
+}
+
 export default function ArticleDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const articles = useArticleStore((s) => s.articles);
@@ -68,7 +90,7 @@ export default function ArticleDetailPage() {
             {article.introduction}
           </p>
 
-          <div className="prose prose-sm max-w-none text-gray-700" dangerouslySetInnerHTML={{ __html: article.body }} />
+          <div className="prose prose-sm max-w-none text-gray-700" dangerouslySetInnerHTML={{ __html: markdownToHtml(article.body) }} />
 
           {/* Back link */}
           <div className="mt-12 pt-6 border-t border-gray-100">
