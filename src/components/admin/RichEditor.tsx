@@ -44,7 +44,9 @@ function ToolbarBtn({ onClick, active, title, children }: {
       onMouseDown={(e) => { e.preventDefault(); onClick(); }}
       title={title}
       className={`p-1.5 rounded transition-colors ${
-        active ? 'bg-brand-primary text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
+        active
+          ? 'bg-brand-primary/15 text-brand-primary ring-1 ring-brand-primary/30'
+          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
       }`}
     >
       {children}
