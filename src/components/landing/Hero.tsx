@@ -122,13 +122,13 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-[50vh] overflow-hidden">
-      {/* Video / fallback background */}
+      {/* Video background */}
       <VideoBackground clips={CLIPS} />
 
-      {/* Dark overlay — keeps text readable over any video */}
+      {/* Dark overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
 
-      {/* Subtle gold bottom edge */}
+      {/* Gold bottom edge */}
       <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gold-gradient" />
 
       {/* Content */}
