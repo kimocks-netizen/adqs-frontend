@@ -310,9 +310,9 @@ export default function DocumentEditorPage() {
               </div>
               <button
                 onClick={() => setWatermark((v) => !v)}
-                className={`w-10 h-5 rounded-full transition-colors relative ${watermark ? 'bg-brand-primary' : 'bg-gray-200'}`}
+                className={`w-11 h-6 rounded-full transition-colors relative ${watermark ? 'bg-brand-primary' : 'bg-gray-200'}`}
               >
-                <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${watermark ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                <span className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${watermark ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
           </div>
