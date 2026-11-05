@@ -9,13 +9,11 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <div className="relative z-10 bg-white">
-        <ServicesOverview />
-        <AboutStrip />
-        <LatestInsights />
-        <FounderSection />
-        <ContactCTA />
-      </div>
+      <ServicesOverview />
+      <AboutStrip />
+      <LatestInsights />
+      <FounderSection />
+      <ContactCTA />
     </>
   );
 }
