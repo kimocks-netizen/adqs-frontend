@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Trash2, X, CheckCheck, Eye, Search, ShieldCheck, ShieldOff, RefreshCw } from 'lucide-react';
+import { Mail, Trash2, X, CheckCheck, Eye, Search, ShieldCheck, ShieldOff, RefreshCw, Reply } from 'lucide-react';
 import { contactApi, type Enquiry } from '@/features/contact/api';
 
 function formatDate(iso: string) {
@@ -189,6 +189,12 @@ export default function EnquiriesPage() {
               </div>
 
               <div className="px-6 py-4 border-t border-gray-100 space-y-2">
+                <a
+                  href={`mailto:${selected.email}?subject=${encodeURIComponent(`Re: Your ADQS Enquiry — ${selected.area_of_enquiry}`)}&body=${encodeURIComponent(`Dear ${selected.name},\n\nThank you for your enquiry regarding ${selected.area_of_enquiry}.\n\n`)}`}
+                  className="w-full flex items-center justify-center gap-2 bg-brand-gradient text-white text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  <Reply className="w-4 h-4" /> Reply via Email
+                </a>
                 <div className="flex gap-2">
                   {selected.status !== 'Read' && (
                     <button onClick={() => statusMutation.mutate({ id: selected.id, status: 'Read' })}
