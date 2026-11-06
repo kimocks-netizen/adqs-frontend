@@ -66,8 +66,8 @@ export default function AdminLayout() {
               <User className="w-4 h-4 text-white" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold truncate">{user.name}</p>
-              <p className="text-[10px] text-white/50 truncate">{user.email}</p>
+              <p className="text-xs font-semibold truncate">{user?.name ?? 'Administrator'}</p>
+              <p className="text-[10px] text-white/50 truncate">{user?.email ?? ''}</p>
             </div>
           </div>
           <button

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, Clock, CheckCircle, Send, ShieldCheck, ShieldOff } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, CheckCircle, Send, ShieldCheck, X } from 'lucide-react';
 import { dummyServices } from '@/data/services';
 import { ROUTES } from '@/routes/routes';
 import { contactApi } from '@/features/contact/api';
@@ -22,78 +22,88 @@ const EMPTY: FormState = { name: '', email: '', phone: '', organisation: '', are
 const INFO = [
   { icon: MapPin, label: 'Office', value: '252 Cole Road, Shere, Pretoria, Gauteng, 0084' },
   { icon: Phone, label: 'Phone', value: '+27 66 023 0095' },
-  { icon: Mail, label: 'Email', value: 'info@adqs.co.za' },
+  { icon: Mail,  label: 'Email', value: 'info@adqs.co.za' },
   { icon: Clock, label: 'Office Hours', value: 'Mon – Fri: 08:00 – 17:00' },
 ];
 
-type OtpStatus = 'idle' | 'sending' | 'sent' | 'verifying' | 'verified' | 'skipped';
+type ModalStep = 'prompt' | 'sending' | 'enter' | 'verifying' | 'verified';
 
 export default function ContactPage() {
-  const [form, setForm] = useState<FormState>(EMPTY);
-  const [errors, setErrors] = useState<Partial<FormState>>({});
+  const [form, setForm]         = useState<FormState>(EMPTY);
+  const [errors, setErrors]     = useState<Partial<FormState>>({});
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  // OTP state
-  const [otpStatus, setOtpStatus] = useState<OtpStatus>('idle');
-  const [otpCode, setOtpCode] = useState('');
-  const [otpError, setOtpError] = useState('');
-  const [cooldown, setCooldown] = useState(0);
+  // OTP modal
+  const [showModal, setShowModal]   = useState(false);
+  const [modalStep, setModalStep]   = useState<ModalStep>('prompt');
+  const [otpCode, setOtpCode]       = useState('');
+  const [otpError, setOtpError]     = useState('');
+  const [cooldown, setCooldown]     = useState(0);
+  const [emailVerified, setEmailVerified] = useState(false);
   const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
-  const isVerified = otpStatus === 'verified';
-  const isSkipped = otpStatus === 'skipped';
-
-  useEffect(() => {
-    return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
-  }, []);
-
-  // Reset OTP when email changes
-  useEffect(() => {
-    if (otpStatus !== 'idle') {
-      setOtpStatus('idle');
-      setOtpCode('');
-      setOtpError('');
-      setCooldown(0);
-      if (cooldownRef.current) clearInterval(cooldownRef.current);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.email]);
+  useEffect(() => () => { if (cooldownRef.current) clearInterval(cooldownRef.current); }, []);
 
   function startCooldown() {
     setCooldown(60);
     cooldownRef.current = setInterval(() => {
-      setCooldown((c) => {
-        if (c <= 1) { clearInterval(cooldownRef.current!); return 0; }
-        return c - 1;
-      });
+      setCooldown((c) => { if (c <= 1) { clearInterval(cooldownRef.current!); return 0; } return c - 1; });
     }, 1000);
   }
 
   async function handleSendOtp() {
     setOtpError('');
-    setOtpStatus('sending');
+    setModalStep('sending');
     try {
       await contactApi.sendOtp(form.email);
-      setOtpStatus('sent');
+      setModalStep('enter');
       startCooldown();
     } catch (err: unknown) {
-      setOtpStatus('idle');
-      setOtpError(err instanceof Error ? err.message : 'Failed to send code. Please try again.');
+      setOtpError(err instanceof Error ? err.message : 'Failed to send code.');
+      setModalStep('prompt');
     }
   }
 
   async function handleVerifyOtp() {
     if (otpCode.length !== 6) { setOtpError('Enter the 6-digit code.'); return; }
     setOtpError('');
-    setOtpStatus('verifying');
+    setModalStep('verifying');
     try {
       await contactApi.verifyOtp(form.email, otpCode);
-      setOtpStatus('verified');
+      setModalStep('verified');
+      setEmailVerified(true);
+      // Auto-submit after short delay so user sees the verified state
+      setTimeout(() => { setShowModal(false); doSubmit(true); }, 1200);
     } catch (err: unknown) {
-      setOtpStatus('sent');
+      setModalStep('enter');
       setOtpError(err instanceof Error ? err.message : 'Incorrect code. Please try again.');
+    }
+  }
+
+  function handleSkip() {
+    setShowModal(false);
+    doSubmit(false);
+  }
+
+  async function doSubmit(verified: boolean) {
+    setSubmitting(true);
+    try {
+      await contactApi.submit({
+        name: form.name,
+        email: form.email,
+        phone: form.phone || undefined,
+        organisation: form.organisation || undefined,
+        area_of_enquiry: form.area_of_enquiry,
+        message: form.message,
+        email_verified: verified,
+      });
+      setEmailVerified(verified);
+      setSubmitted(true);
+    } catch (err: unknown) {
+      setErrors({ message: err instanceof Error ? err.message : 'Failed to submit. Please try again.' });
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -101,7 +111,7 @@ export default function ContactPage() {
     const e: Partial<FormState> = {};
     if (!form.name.trim()) e.name = 'Full name is required.';
     if (!form.email.trim()) e.email = 'Email address is required.';
-    else if (!emailValid) e.email = 'Enter a valid email address.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email address.';
     if (!form.area_of_enquiry) e.area_of_enquiry = 'Please select an area of enquiry.';
     if (!form.message.trim()) e.message = 'Please describe your enquiry.';
     return e;
@@ -113,27 +123,15 @@ export default function ContactPage() {
     if (errors[name as keyof FormState]) setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmitClick = (e: React.FormEvent) => {
     e.preventDefault();
     const e2 = validate();
     if (Object.keys(e2).length) { setErrors(e2); return; }
-    setLoading(true);
-    try {
-      await contactApi.submit({
-        name: form.name,
-        email: form.email,
-        phone: form.phone || undefined,
-        organisation: form.organisation || undefined,
-        area_of_enquiry: form.area_of_enquiry,
-        message: form.message,
-        email_verified: isVerified,
-      });
-      setSubmitted(true);
-    } catch (err: unknown) {
-      setErrors({ message: err instanceof Error ? err.message : 'Failed to submit. Please try again.' });
-    } finally {
-      setLoading(false);
-    }
+    // Open OTP modal
+    setOtpCode('');
+    setOtpError('');
+    setModalStep('prompt');
+    setShowModal(true);
   };
 
   const inputClass = (field: keyof FormState) =>
@@ -145,6 +143,122 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-white">
+
+      {/* OTP Modal */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 16 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-7 relative"
+            >
+              {/* Close — only on prompt step */}
+              {modalStep === 'prompt' && (
+                <button onClick={() => setShowModal(false)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+
+              <AnimatePresence mode="wait">
+
+                {/* Step: prompt */}
+                {modalStep === 'prompt' && (
+                  <motion.div key="prompt" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="space-y-4">
+                    <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+                      <ShieldCheck className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-brand-primary">Verify your email?</h3>
+                      <p className="text-sm text-gray-500 mt-1">
+                        We'll send a 6-digit code to <strong>{form.email}</strong> to confirm it's correct.
+                        Verified emails get a confirmation receipt.
+                      </p>
+                    </div>
+                    {otpError && <p className="text-xs text-red-500">{otpError}</p>}
+                    <button onClick={handleSendOtp}
+                      className="w-full bg-brand-gradient text-white text-sm font-bold py-2.5 rounded-lg hover:opacity-90 transition-opacity">
+                      Send verification code
+                    </button>
+                    <button onClick={handleSkip}
+                      className="w-full text-sm text-gray-400 hover:text-gray-600 py-1 underline">
+                      Skip — send enquiry without verifying
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Step: sending */}
+                {modalStep === 'sending' && (
+                  <motion.div key="sending" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="flex flex-col items-center gap-3 py-6">
+                    <span className="w-8 h-8 border-2 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin" />
+                    <p className="text-sm text-gray-500">Sending code to {form.email}…</p>
+                  </motion.div>
+                )}
+
+                {/* Step: enter code */}
+                {modalStep === 'enter' && (
+                  <motion.div key="enter" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="space-y-4">
+                    <div>
+                      <h3 className="text-base font-bold text-brand-primary">Enter verification code</h3>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Code sent to <strong>{form.email}</strong>. Expires in 10 minutes.
+                      </p>
+                    </div>
+                    <input
+                      value={otpCode}
+                      onChange={(e) => { setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setOtpError(''); }}
+                      placeholder="000000"
+                      maxLength={6}
+                      className="w-full px-4 py-3 text-center text-2xl font-mono tracking-[0.5em] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                    />
+                    {otpError && <p className="text-xs text-red-500">{otpError}</p>}
+                    <button onClick={handleVerifyOtp}
+                      className="w-full bg-brand-gradient text-white text-sm font-bold py-2.5 rounded-lg hover:opacity-90 transition-opacity">
+                      Verify code
+                    </button>
+                    <div className="flex items-center justify-between text-xs text-gray-400">
+                      {cooldown > 0
+                        ? <span>Resend in {cooldown}s</span>
+                        : <button onClick={handleSendOtp} className="hover:text-gray-600 underline">Resend code</button>
+                      }
+                      <button onClick={handleSkip} className="hover:text-gray-600 underline">Skip verification</button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Step: verifying */}
+                {modalStep === 'verifying' && (
+                  <motion.div key="verifying" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="flex flex-col items-center gap-3 py-6">
+                    <span className="w-8 h-8 border-2 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin" />
+                    <p className="text-sm text-gray-500">Verifying…</p>
+                  </motion.div>
+                )}
+
+                {/* Step: verified */}
+                {modalStep === 'verified' && (
+                  <motion.div key="verified" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }} className="flex flex-col items-center gap-3 py-6 text-center">
+                    <CheckCircle className="w-12 h-12 text-green-500" />
+                    <p className="text-base font-bold text-brand-primary">Email verified!</p>
+                    <p className="text-sm text-gray-500">Submitting your enquiry…</p>
+                  </motion.div>
+                )}
+
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero */}
       <section className="bg-brand-gradient pt-32 pb-16 text-white">
         <div className="max-w-6xl mx-auto px-6">
@@ -180,20 +294,20 @@ export default function ContactPage() {
                 <h3 className="text-xl font-bold text-brand-primary">Enquiry Received</h3>
                 <p className="text-gray-500 max-w-sm text-sm">
                   Thank you, {form.name.split(' ')[0]}.{' '}
-                  {isVerified
+                  {emailVerified
                     ? "We've sent a confirmation to your email. We'll be in touch within one business day."
                     : "We'll be in touch within one business day."}
                 </p>
-                <button onClick={() => { setForm(EMPTY); setSubmitted(false); setOtpStatus('idle'); setOtpCode(''); }}
+                <button onClick={() => { setForm(EMPTY); setSubmitted(false); setEmailVerified(false); }}
                   className="mt-2 text-sm text-brand-secondary font-semibold hover:underline">
                   Submit another enquiry
                 </button>
               </motion.div>
             ) : (
               <motion.form key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                onSubmit={handleSubmit} noValidate className="space-y-5">
+                onSubmit={handleSubmitClick} noValidate className="space-y-5">
 
-                {/* Row 1 — name + email */}
+                {/* Row 1 */}
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-xs font-semibold text-gray-600 mb-1.5">Full Name *</label>
@@ -209,82 +323,7 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* OTP verification block — shown once email is valid */}
-                <AnimatePresence>
-                  {emailValid && !isVerified && !isSkipped && (
-                    <motion.div key="otp-block" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                      <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-3">
-                        <p className="text-xs font-semibold text-blue-800">
-                          Verify your email to receive a confirmation and ensure we can reach you.
-                        </p>
-
-                        {otpStatus === 'idle' && (
-                          <button type="button" onClick={handleSendOtp}
-                            className="text-xs font-bold text-white bg-brand-primary px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
-                            Send verification code
-                          </button>
-                        )}
-
-                        {otpStatus === 'sending' && (
-                          <p className="text-xs text-blue-600 flex items-center gap-2">
-                            <span className="w-3 h-3 border-2 border-blue-400/40 border-t-blue-600 rounded-full animate-spin" />
-                            Sending code…
-                          </p>
-                        )}
-
-                        {(otpStatus === 'sent' || otpStatus === 'verifying') && (
-                          <div className="space-y-2">
-                            <p className="text-xs text-blue-700">Code sent to <strong>{form.email}</strong></p>
-                            <div className="flex gap-2">
-                              <input
-                                value={otpCode}
-                                onChange={(e) => { setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setOtpError(''); }}
-                                placeholder="6-digit code"
-                                maxLength={6}
-                                className="w-36 px-3 py-2 text-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 tracking-widest font-mono"
-                              />
-                              <button type="button" onClick={handleVerifyOtp} disabled={otpStatus === 'verifying'}
-                                className="text-xs font-bold text-white bg-brand-primary px-4 py-2 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60">
-                                {otpStatus === 'verifying' ? 'Verifying…' : 'Verify'}
-                              </button>
-                            </div>
-                            {cooldown > 0
-                              ? <p className="text-xs text-gray-400">Resend in {cooldown}s</p>
-                              : <button type="button" onClick={handleSendOtp} className="text-xs text-blue-600 hover:underline">Resend code</button>
-                            }
-                          </div>
-                        )}
-
-                        {otpError && <p className="text-xs text-red-500">{otpError}</p>}
-
-                        {otpStatus === 'idle' || otpStatus === 'sending' || otpStatus === 'sent' || otpStatus === 'verifying' ? (
-                          <button type="button" onClick={() => setOtpStatus('skipped')}
-                            className="text-xs text-gray-400 hover:text-gray-600 underline">
-                            Skip verification
-                          </button>
-                        ) : null}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Verified / skipped badge */}
-                <AnimatePresence>
-                  {(isVerified || isSkipped) && (
-                    <motion.div key="badge" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                      className={`flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg w-fit ${
-                        isVerified ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'
-                      }`}>
-                      {isVerified
-                        ? <><ShieldCheck className="w-4 h-4" /> Email verified</>
-                        : <><ShieldOff className="w-4 h-4" /> Email not verified — <button type="button" onClick={() => { setOtpStatus('idle'); setOtpCode(''); setOtpError(''); }} className="underline">verify now</button></>
-                      }
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Row 2 — phone + organisation */}
+                {/* Row 2 */}
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-xs font-semibold text-gray-600 mb-1.5">Phone Number</label>
@@ -325,12 +364,12 @@ export default function ContactPage() {
                   This form does not create an attorney-client relationship.
                 </p>
 
-                <button type="submit" disabled={loading}
+                <button type="submit" disabled={submitting}
                   className="flex items-center gap-2 bg-brand-gradient text-white text-sm font-bold px-7 py-3 rounded-full hover:opacity-90 transition-opacity disabled:opacity-60">
-                  {loading
+                  {submitting
                     ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                     : <Send className="w-4 h-4" />}
-                  {loading ? 'Sending…' : 'Send Enquiry'}
+                  {submitting ? 'Sending…' : 'Send Enquiry'}
                 </button>
               </motion.form>
             )}
