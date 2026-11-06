@@ -5,6 +5,7 @@ import {
   ChevronRight, User, FileText,
 } from 'lucide-react';
 import logo from '@/assets/logo.jpg';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const NAV = [
   { to: ROUTES.ADMIN,           label: 'Home',      icon: LayoutDashboard, end: true  },
@@ -15,12 +16,10 @@ const NAV = [
 
 export default function AdminLayout() {
   const navigate = useNavigate();
-  const user = JSON.parse(sessionStorage.getItem('adqs_user') || '{"name":"Administrator","email":"admin@adqs.co.za"}');
+  const { user, logout } = useAuthStore((s) => ({ user: s.user, logout: s.logout }));
 
   function handleLogout() {
-    sessionStorage.removeItem('adqs_admin');
-    sessionStorage.removeItem('adqs_token');
-    sessionStorage.removeItem('adqs_user');
+    logout();
     navigate(ROUTES.ADMIN_LOGIN);
   }
 

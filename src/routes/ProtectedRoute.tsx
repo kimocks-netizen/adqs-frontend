@@ -1,7 +1,8 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export function ProtectedRoute() {
-  const isAdmin = sessionStorage.getItem('adqs_admin') === '1';
-  if (!isAdmin) return <Navigate to="/admin/login" replace />;
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  if (!isAuthenticated) return <Navigate to="/admin/login" replace />;
   return <Outlet />;
 }

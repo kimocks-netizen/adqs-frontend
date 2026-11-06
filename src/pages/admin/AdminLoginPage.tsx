@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
 import logo from '@/assets/logo.jpg';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3002';
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
+  const setAuth = useAuthStore((s) => s.setAuth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -34,9 +36,7 @@ export default function AdminLoginPage() {
         setLoading(false);
         return;
       }
-      sessionStorage.setItem('adqs_admin', '1');
-      sessionStorage.setItem('adqs_token', data.token);
-      sessionStorage.setItem('adqs_user', JSON.stringify(data.data));
+      setAuth(data.data, data.token);
       navigate('/admin', { replace: true });
     } catch {
       setError('Unable to connect. Please try again.');
