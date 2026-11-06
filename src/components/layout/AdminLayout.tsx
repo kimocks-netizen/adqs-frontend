@@ -16,7 +16,8 @@ const NAV = [
 
 export default function AdminLayout() {
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore((s) => ({ user: s.user, logout: s.logout }));
+  const user   = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
 
   function handleLogout() {
     logout();
