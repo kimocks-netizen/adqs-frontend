@@ -39,6 +39,15 @@ export default function EnquiriesPage() {
     },
   });
 
+  // Auto mark as Read when opening, auto mark as Replied when reply button clicked
+  function openEnquiry(enq: Enquiry) {
+    setSelected(enq);
+    if (enq.status === 'New') {
+      statusMutation.mutate({ id: enq.id, status: 'Read' });
+    }
+  }
+
+
   const deleteMutation = useMutation({
     mutationFn: (id: string) => contactApi.remove(id),
     onSuccess: (_, id) => {
@@ -114,7 +123,7 @@ export default function EnquiriesPage() {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {enquiries.map((enq) => (
-                <tr key={enq.id} onClick={() => setSelected(enq)}
+                <tr key={enq.id} onClick={() => openEnquiry(enq)}
                   className={`cursor-pointer hover:bg-gray-50 transition-colors ${selected?.id === enq.id ? 'bg-blue-50/40' : ''}`}>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2">
@@ -191,6 +200,7 @@ export default function EnquiriesPage() {
               <div className="px-6 py-4 border-t border-gray-100 space-y-2">
                 <a
                   href={`mailto:${selected.email}?subject=${encodeURIComponent(`Re: Your ADQS Enquiry — ${selected.area_of_enquiry}`)}&body=${encodeURIComponent(`Dear ${selected.name},\n\nThank you for your enquiry regarding ${selected.area_of_enquiry}.\n\n`)}`}
+                  onClick={() => { if (selected.status !== 'Replied') statusMutation.mutate({ id: selected.id, status: 'Replied' }); }}
                   className="w-full flex items-center justify-center gap-2 bg-brand-gradient text-white text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity"
                 >
                   <Reply className="w-4 h-4" /> Reply via Email
