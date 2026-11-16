@@ -30,8 +30,14 @@ export const documentsApi = {
   deleteFolder: (id: string) =>
     api.delete('/api/admin/document-folders/' + id),
 
-  getAll: (folder_id?: string) =>
-    api.get<{ data: Document[] }>('/api/admin/documents' + (folder_id ? `?folder_id=${folder_id}` : '')),
+  getAll: (folder_id?: string, page = 1, limit = 10) =>
+    api.get<{ data: Document[]; count: number }>('/api/admin/documents' + (() => {
+      const q = new URLSearchParams();
+      if (folder_id) q.set('folder_id', folder_id);
+      q.set('page', String(page));
+      q.set('limit', String(limit));
+      return '?' + q.toString();
+    })()),
 
   getById: (id: string) =>
     api.get<{ data: Document }>('/api/admin/documents/' + id),

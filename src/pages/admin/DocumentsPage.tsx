@@ -26,8 +26,16 @@ export default function DocumentsPage() {
   const [activeFolderId, setActiveFolderId] = useState<string>('');
   const activeFolderIdResolved = activeFolderId || folders[0]?.id || '';
 
-  const { data: docsData } = useDocumentsQuery(activeFolderIdResolved || undefined);
+  // Reset to page 1 when folder changes
+  const handleSetFolder = (id: string) => { setActiveFolderId(id); setPage(1); };
+
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
+  const { data: docsData } = useDocumentsQuery(activeFolderIdResolved || undefined, page, limit);
   const allDocs = docsData?.data ?? [];
+  const totalCount = (docsData as { count?: number })?.count ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
   // Fetch ALL docs (no folder filter) just for folder counts
   const { data: allDocsData } = useDocumentsQuery();
@@ -76,7 +84,7 @@ export default function DocumentsPage() {
           className={`group flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors text-sm ${
             isActive ? 'bg-brand-primary/10 text-brand-primary font-semibold' : 'text-gray-600 hover:bg-gray-100'
           }`}
-          onClick={() => setActiveFolderId(folder.id)}
+          onClick={() => handleSetFolder(folder.id)}
         >
           {isActive ? <FolderOpen className="w-4 h-4 shrink-0" /> : <Folder className="w-4 h-4 shrink-0" />}
           <span className="flex-1 truncate">{folder.name}</span>
@@ -127,7 +135,7 @@ export default function DocumentsPage() {
             return (
               <button
                 key={f.id}
-                onClick={() => setActiveFolderId(f.id)}
+                onClick={() => handleSetFolder(f.id)}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors shrink-0 ${
                   isActive ? 'bg-brand-primary text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
                 }`}
@@ -171,14 +179,27 @@ export default function DocumentsPage() {
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <span className="font-bold text-brand-primary text-lg">{activeFolder?.name ?? '…'}</span>
             <ChevronRight className="w-4 h-4" />
-            <span>{folderDocs.length} document{folderDocs.length !== 1 ? 's' : ''}</span>
+            <span>{totalCount} document{totalCount !== 1 ? 's' : ''}</span>
           </div>
-          <Link
-            to={`/admin/documents/new?folder=${activeFolderIdResolved}`}
-            className="flex items-center gap-2 bg-brand-gradient text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-          >
-            <FilePlus className="w-4 h-4" /> <span className="hidden sm:inline">New </span>Document
-          </Link>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-gray-400">Show</span>
+              <select
+                value={limit}
+                onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
+                className="text-xs font-semibold border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30 bg-white"
+              >
+                {[5, 10, 20, 50].map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
+              <span className="text-xs text-gray-400">per page</span>
+            </div>
+            <Link
+              to={`/admin/documents/new?folder=${activeFolderIdResolved}`}
+              className="flex items-center gap-2 bg-brand-gradient text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+            >
+              <FilePlus className="w-4 h-4" /> <span className="hidden sm:inline">New </span>Document
+            </Link>
+          </div>
         </div>
 
         <div className="relative">
@@ -244,9 +265,43 @@ export default function DocumentsPage() {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Delete document modal */}
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+            <p className="text-xs text-gray-400">
+              Showing {((page - 1) * limit) + 1}–{Math.min(page * limit, totalCount)} of {totalCount}
+            </p>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Prev
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`w-8 h-8 text-xs font-semibold rounded-lg transition-colors ${
+                    p === page ? 'bg-brand-primary text-white' : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
       <AnimatePresence>
         {deleteDocId && (
           <>
@@ -291,7 +346,7 @@ export default function DocumentsPage() {
                     onClick={() => {
                       deleteFolder.mutate(deleteFolderId);
                       setDeleteFolderId(null);
-                      if (activeFolderIdResolved === deleteFolderId) setActiveFolderId('');
+                      if (activeFolderIdResolved === deleteFolderId) handleSetFolder('');
                     }}
                     className="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-red-500 text-white hover:bg-red-600"
                   >

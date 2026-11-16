@@ -4,7 +4,7 @@ import { documentsApi } from './api';
 export const documentKeys = {
   all:      ['documents'] as const,
   folders:  ['documents', 'folders'] as const,
-  list:     (folderId?: string) => ['documents', 'list', folderId ?? 'all'] as const,
+  list:     (folderId?: string, page?: number, limit?: number) => ['documents', 'list', folderId ?? 'all', page ?? 1, limit ?? 10] as const,
   detail:   (id: string) => ['documents', 'detail', id] as const,
 };
 
@@ -17,10 +17,10 @@ export function useFoldersQuery() {
   });
 }
 
-export function useDocumentsQuery(folderId?: string) {
+export function useDocumentsQuery(folderId?: string, page = 1, limit = 10) {
   return useQuery({
-    queryKey: documentKeys.list(folderId),
-    queryFn: () => documentsApi.getAll(folderId),
+    queryKey: documentKeys.list(folderId, page, limit),
+    queryFn: () => documentsApi.getAll(folderId, page, limit),
     staleTime: 0,
     refetchOnMount: 'always',
   });
