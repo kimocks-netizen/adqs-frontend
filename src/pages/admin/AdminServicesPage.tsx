@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PlusCircle, Pencil, Trash2, Check, X, ToggleLeft, ToggleRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { useServicesQuery } from '@/features/services/queries';
 import { useCreateService, useUpdateService, useDeleteService } from '@/features/services/mutations';
-import { MobileTable } from '@/components/admin/MobileTable';
 import type { Service } from '@/features/services/api';
 
 const EMPTY: Omit<Service, 'id'> = {
@@ -148,108 +147,91 @@ export default function AdminServicesPage() {
         )}
       </AnimatePresence>
 
-      {/* Desktop: card list */}
+      {/* Services list */}
       {isLoading ? (
         <div className="flex items-center justify-center py-20 text-gray-400 text-sm">Loading services…</div>
       ) : (
-        <>
-          <div className="hidden md:block space-y-3">
-            {services.map((service) => (
-              <motion.div key={service.id} layout className="bg-white rounded-xl border border-gray-100 shadow-card overflow-hidden">
-                {editId === service.id ? (
-                  <div className="p-4">
-                    <ServiceForm
-                      initial={service}
-                      onSave={(data) => handleUpdate(service.id, data)}
-                      onCancel={() => setEditId(null)}
-                      isPending={updateService.isPending}
-                    />
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-4 px-5 py-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold text-gray-800 truncate">{service.title}</p>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${service.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
-                            {service.is_active ? 'Active' : 'Hidden'}
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-400 mt-0.5 truncate">{service.summary}</p>
-                      </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button onClick={() => setExpandedId(expandedId === service.id ? null : service.id)} className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors" title="View areas">
-                          {expandedId === service.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                        </button>
-                        <button onClick={() => handleToggleActive(service)} className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors" title={service.is_active ? 'Hide' : 'Show'}>
-                          {service.is_active ? <ToggleRight className="w-4 h-4 text-green-500" /> : <ToggleLeft className="w-4 h-4" />}
-                        </button>
-                        <button onClick={() => { setEditId(service.id); setShowAdd(false); }} className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors" title="Edit">
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => setDeleteId(service.id)} className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors" title="Delete">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <AnimatePresence>
-                      {expandedId === service.id && (
-                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-gray-100">
-                          <div className="px-5 py-3 flex flex-wrap gap-2">
-                            {service.areas.map((area) => (
-                              <span key={area} className="text-xs bg-brand-primary/8 text-brand-primary px-2.5 py-1 rounded-full font-medium">{area}</span>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </>
-                )}
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Mobile: MobileTable cards */}
-          <MobileTable
-            empty="No services found."
-            rows={services.map((service) => ({
-              id: service.id,
-              primary: service.title,
-              secondary: service.summary,
-              badge: (
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${service.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
-                  {service.is_active ? 'Active' : 'Hidden'}
-                </span>
-              ),
-              fields: [
-                { label: 'Areas', value: `${service.areas.length} area${service.areas.length !== 1 ? 's' : ''}` },
-                { label: 'Order', value: service.display_order },
-                { label: 'Slug', value: <span className="font-mono text-[10px]">{service.slug}</span> },
-              ],
-              actions: (
+        <div className="space-y-3">
+          {services.map((service) => (
+            <motion.div key={service.id} layout className="bg-white rounded-xl border border-gray-100 shadow-card overflow-hidden">
+              {editId === service.id ? (
+                <div className="p-4">
+                  <ServiceForm
+                    initial={service}
+                    onSave={(data) => handleUpdate(service.id, data)}
+                    onCancel={() => setEditId(null)}
+                    isPending={updateService.isPending}
+                  />
+                </div>
+              ) : (
                 <>
-                  <button
-                    onClick={() => handleToggleActive(service)}
-                    className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-colors ${
-                      service.is_active ? 'border-gray-200 text-gray-500 hover:bg-gray-50' : 'border-green-200 text-green-600 hover:bg-green-50'
-                    }`}
-                  >
-                    {service.is_active ? <><ToggleLeft className="w-3.5 h-3.5" /> Hide</> : <><ToggleRight className="w-3.5 h-3.5" /> Show</>}
-                  </button>
-                  <button
-                    onClick={() => { setEditId(service.id); setShowAdd(false); }}
-                    className="flex items-center gap-1 text-xs font-semibold text-brand-primary border border-brand-primary/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-primary/5"
-                  >
-                    <Pencil className="w-3.5 h-3.5" /> Edit
-                  </button>
-                  <button onClick={() => setDeleteId(service.id)} className="ml-auto p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {/* Row */}
+                  <div className="flex items-center gap-4 px-5 py-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-gray-800 truncate">{service.title}</p>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${service.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
+                          {service.is_active ? 'Active' : 'Hidden'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-0.5 truncate">{service.summary}</p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => setExpandedId(expandedId === service.id ? null : service.id)}
+                        className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors"
+                        title="View areas"
+                      >
+                        {expandedId === service.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </button>
+                      <button
+                        onClick={() => handleToggleActive(service)}
+                        className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors"
+                        title={service.is_active ? 'Hide service' : 'Show service'}
+                      >
+                        {service.is_active ? <ToggleRight className="w-4 h-4 text-green-500" /> : <ToggleLeft className="w-4 h-4" />}
+                      </button>
+                      <button
+                        onClick={() => { setEditId(service.id); setShowAdd(false); }}
+                        className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteId(service.id)}
+                        className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Expanded areas */}
+                  <AnimatePresence>
+                    {expandedId === service.id && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden border-t border-gray-100"
+                      >
+                        <div className="px-5 py-3 flex flex-wrap gap-2">
+                          {service.areas.map((area) => (
+                            <span key={area} className="text-xs bg-brand-primary/8 text-brand-primary px-2.5 py-1 rounded-full font-medium">
+                              {area}
+                            </span>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </>
-              ),
-            }))}
-          />
-        </>
+              )}
+            </motion.div>
+          ))}
+        </div>
       )}
 
       {/* Delete modal */}
