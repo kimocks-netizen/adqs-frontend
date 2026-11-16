@@ -228,16 +228,82 @@ export default function EnquiriesPage() {
         )}
       </div>
 
-      {/* Detail side panel */}
+      {/* Detail panel — bottom sheet on mobile, side drawer on desktop */}
       <AnimatePresence>
         {selected && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setSelected(null)} className="fixed inset-0 bg-black/20 z-40" />
+              onClick={() => setSelected(null)} className="fixed inset-0 bg-black/40 z-40" />
+
+            {/* Mobile: bottom sheet */}
+            <motion.div
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 280 }}
+              className="md:hidden fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl shadow-2xl flex flex-col max-h-[calc(100vh-4rem)]"
+            >
+              {/* Drag handle */}
+              <div className="flex justify-center pt-3 pb-1 shrink-0">
+                <div className="w-10 h-1 rounded-full bg-gray-200" />
+              </div>
+              <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 shrink-0">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-brand-primary">{selected.name}</p>
+                    {selected.email_verified
+                      ? <span className="flex items-center gap-1 text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full"><ShieldCheck className="w-3 h-3" />Verified</span>
+                      : <span className="flex items-center gap-1 text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full"><ShieldOff className="w-3 h-3" />Unverified</span>}
+                  </div>
+                  <p className="text-xs text-gray-400">{formatDate(selected.created_at)}</p>
+                </div>
+                <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-700">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+                <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full ${STATUS_STYLES[selected.status]}`}>{selected.status}</span>
+                <div className="space-y-2 text-sm">
+                  <Row label="Email" value={selected.email} />
+                  <Row label="Phone" value={selected.phone || '—'} />
+                  <Row label="Organisation" value={selected.organisation || '—'} />
+                  <Row label="Area of Enquiry" value={selected.area_of_enquiry} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Message</p>
+                  <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-lg p-4 border border-gray-100">{selected.message}</p>
+                </div>
+              </div>
+              <div className="px-5 py-4 pb-20 border-t border-gray-100 space-y-2 shrink-0">
+                <a
+                  href={`mailto:${selected.email}?subject=${encodeURIComponent(`Re: Your ADQS Enquiry — ${selected.area_of_enquiry}`)}&body=${encodeURIComponent(`Dear ${selected.name},\n\nThank you for your enquiry regarding ${selected.area_of_enquiry}.\n\n`)}`}
+                  onClick={() => { if (selected.status !== 'Replied') statusMutation.mutate({ id: selected.id, status: 'Replied' }); }}
+                  className="w-full flex items-center justify-center gap-2 bg-brand-gradient text-white text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity">
+                  <Reply className="w-4 h-4" /> Reply via Email
+                </a>
+                <div className="flex gap-2">
+                  {selected.status !== 'Read' && (
+                    <button onClick={() => statusMutation.mutate({ id: selected.id, status: 'Read' })} disabled={statusMutation.isPending}
+                      className="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-700 text-sm font-semibold py-2.5 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-60">
+                      <Eye className="w-4 h-4" /> Mark as Read
+                    </button>
+                  )}
+                  {selected.status !== 'Replied' && (
+                    <button onClick={() => statusMutation.mutate({ id: selected.id, status: 'Replied' })} disabled={statusMutation.isPending}
+                      className="flex-1 flex items-center justify-center gap-2 bg-brand-gradient text-white text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60">
+                      <CheckCheck className="w-4 h-4" /> Mark as Replied
+                    </button>
+                  )}
+                </div>
+                <button onClick={() => setDeleteId(selected.id)}
+                  className="w-full flex items-center justify-center gap-2 text-red-500 text-sm font-semibold py-2.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors">
+                  <Trash2 className="w-4 h-4" /> Delete Enquiry
+                </button>
+              </div>
+            </motion.div>
+
+            {/* Desktop: side drawer */}
             <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-              className="fixed top-0 right-0 h-screen w-full max-w-md bg-white shadow-2xl z-50 flex flex-col">
-
+              className="hidden md:flex fixed top-0 right-0 h-screen w-full max-w-md bg-white shadow-2xl z-50 flex-col">
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
                 <div>
                   <div className="flex items-center gap-2">
@@ -252,11 +318,8 @@ export default function EnquiriesPage() {
                   <X className="w-5 h-5" />
                 </button>
               </div>
-
               <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
-                <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full ${STATUS_STYLES[selected.status]}`}>
-                  {selected.status}
-                </span>
+                <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full ${STATUS_STYLES[selected.status]}`}>{selected.status}</span>
                 <div className="space-y-2 text-sm">
                   <Row label="Email" value={selected.email} />
                   <Row label="Phone" value={selected.phone || '—'} />
@@ -265,12 +328,9 @@ export default function EnquiriesPage() {
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Message</p>
-                  <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-lg p-4 border border-gray-100">
-                    {selected.message}
-                  </p>
+                  <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-lg p-4 border border-gray-100">{selected.message}</p>
                 </div>
               </div>
-
               <div className="px-6 py-4 border-t border-gray-100 space-y-2">
                 <a
                   href={`mailto:${selected.email}?subject=${encodeURIComponent(`Re: Your ADQS Enquiry — ${selected.area_of_enquiry}`)}&body=${encodeURIComponent(`Dear ${selected.name},\n\nThank you for your enquiry regarding ${selected.area_of_enquiry}.\n\n`)}`}
@@ -280,15 +340,13 @@ export default function EnquiriesPage() {
                 </a>
                 <div className="flex gap-2">
                   {selected.status !== 'Read' && (
-                    <button onClick={() => statusMutation.mutate({ id: selected.id, status: 'Read' })}
-                      disabled={statusMutation.isPending}
+                    <button onClick={() => statusMutation.mutate({ id: selected.id, status: 'Read' })} disabled={statusMutation.isPending}
                       className="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-700 text-sm font-semibold py-2.5 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-60">
                       <Eye className="w-4 h-4" /> Mark as Read
                     </button>
                   )}
                   {selected.status !== 'Replied' && (
-                    <button onClick={() => statusMutation.mutate({ id: selected.id, status: 'Replied' })}
-                      disabled={statusMutation.isPending}
+                    <button onClick={() => statusMutation.mutate({ id: selected.id, status: 'Replied' })} disabled={statusMutation.isPending}
                       className="flex-1 flex items-center justify-center gap-2 bg-brand-gradient text-white text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60">
                       <CheckCheck className="w-4 h-4" /> Mark as Replied
                     </button>

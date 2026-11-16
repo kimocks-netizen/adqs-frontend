@@ -21,12 +21,15 @@ export function MobileTable({ rows, empty = 'No records found.' }: { rows: Mobil
   return (
     <div className="md:hidden space-y-2">
       {rows.map((row) => (
-        <div key={row.id} className="bg-white rounded-xl border border-gray-100 shadow-card px-4 py-3 space-y-2">
-          {/* Title + badge stacked */}
-          <div className="min-w-0">
+        <div key={row.id} className="relative bg-white rounded-xl border border-gray-100 shadow-card px-4 py-3 space-y-2">
+          {/* Badge: absolute top-right */}
+          {row.badge && (
+            <div className="absolute top-3 right-4">{row.badge}</div>
+          )}
+          {/* Title stacked, padded right so it doesn't overlap badge */}
+          <div className="min-w-0 pr-20">
             <p className="text-sm font-semibold text-gray-800 leading-tight">{row.primary}</p>
             {row.secondary && <p className="mt-0.5 text-xs text-gray-400">{row.secondary}</p>}
-            {row.badge && <div className="mt-1.5">{row.badge}</div>}
           </div>
 
           {/* Fields grid */}
