@@ -144,7 +144,7 @@ export default function ArticlesPage() {
           rows={articles.map((article) => ({
             id: article.id,
             primary: article.title,
-            secondary: `${article.category} · ${formatDate(article.published_at)}`,
+            secondary: article.category,
             badge: (
               <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
                 article.hidden ? 'bg-gray-100 text-gray-400'
@@ -154,6 +154,9 @@ export default function ArticlesPage() {
                 {article.hidden ? 'hidden' : article.status}
               </span>
             ),
+            fields: [
+              { label: 'Date', value: formatDate(article.published_at) },
+            ],
             actions: (
               <>
                 <button
