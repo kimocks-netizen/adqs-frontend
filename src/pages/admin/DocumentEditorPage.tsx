@@ -89,7 +89,7 @@ export default function DocumentEditorPage() {
 
   const { data: existingData } = useDocumentQuery(id ?? '');
   const existing: Document | undefined = existingData?.data;
-  const isEdit = !!id && !!existing;
+  const isEdit = !!id;
 
   const defaultFolderId = searchParams.get('folder') ?? folders[0]?.id ?? '';
 
@@ -244,7 +244,14 @@ export default function DocumentEditorPage() {
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-2">Body</label>
-              <RichEditor value={body} onChange={setBody} placeholder="Start writing your document…" minHeight="480px" maxHeight="70vh" />
+              {isEdit && !body ? (
+                <div className="flex items-center justify-center h-48 border border-gray-200 rounded-lg text-gray-400 text-sm">
+                  <span className="w-4 h-4 border-2 border-gray-300 border-t-brand-primary rounded-full animate-spin mr-2" />
+                  Loading content…
+                </div>
+              ) : (
+                <RichEditor key={id ?? 'new'} value={body} onChange={setBody} placeholder="Start writing your document…" minHeight="480px" maxHeight="70vh" />
+              )}
             </div>
           </motion.div>
         </div>
@@ -344,8 +351,8 @@ export default function DocumentEditorPage() {
                 <button onClick={() => setShowPreview(false)} className="text-gray-400 hover:text-gray-700"><X className="w-5 h-5" /></button>
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto flex justify-center py-8 px-4">
-              <div className="bg-white shadow-2xl rounded-lg p-10 w-full max-w-2xl">
+            <div className="flex-1 overflow-y-auto py-8 px-4">
+              <div className="bg-white shadow-2xl mx-auto p-12" style={{ width: '794px', minWidth: '794px' }}>
                 <DocumentLayout />
               </div>
             </div>
