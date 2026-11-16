@@ -127,18 +127,14 @@ export default function AdminLayout() {
                 }`
               }
             >
-              {({ isActive }) =>
-                label === 'Home' ? (
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-brand-primary' : 'text-brand-primary/40'}`} />
-                ) : (
-                  <>
-                    <Icon className="w-4 h-4 shrink-0" />
-                    <span className={`text-[10px] font-semibold mt-0.5 ${isActive ? 'text-brand-primary' : 'text-gray-400'}`}>
-                      {label}
-                    </span>
-                  </>
-                )
-              }
+              {({ isActive }) => (
+                <>
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span className={`text-[10px] font-semibold mt-0.5 ${isActive ? 'text-brand-primary' : 'text-gray-400'}`}>
+                    {label}
+                  </span>
+                </>
+              )}
             </NavLink>
           ))}
         </div>

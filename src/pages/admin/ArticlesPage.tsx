@@ -144,19 +144,7 @@ export default function ArticlesPage() {
           rows={articles.map((article) => ({
             id: article.id,
             primary: article.title,
-            secondary: article.category,
-            badge: (
-              <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                article.hidden ? 'bg-gray-100 text-gray-400'
-                : article.status === 'published' ? 'bg-green-100 text-green-700'
-                : 'bg-yellow-100 text-yellow-700'
-              }`}>
-                {article.hidden ? 'hidden' : article.status}
-              </span>
-            ),
-            fields: [
-              { label: 'Date', value: formatDate(article.published_at), align: 'right' as const },
-            ],
+            secondary: `${article.category} · ${formatDate(article.published_at)}`,
             actions: (
               <>
                 <button
@@ -167,6 +155,13 @@ export default function ArticlesPage() {
                 >
                   {article.hidden ? <><Eye className="w-3.5 h-3.5" /> Show</> : <><EyeOff className="w-3.5 h-3.5" /> Hide</>}
                 </button>
+                <span className={`text-xs font-bold px-2.5 py-1.5 rounded-lg ${
+                  article.hidden ? 'bg-gray-100 text-gray-400'
+                  : article.status === 'published' ? 'bg-green-100 text-green-700'
+                  : 'bg-yellow-100 text-yellow-700'
+                }`}>
+                  {article.hidden ? 'hidden' : article.status}
+                </span>
                 <Link to={ROUTES.ADMIN_ARTICLE_EDIT(article.id)}
                   className="flex items-center gap-1 text-xs font-semibold text-brand-primary border border-brand-primary/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-primary/5">
                   <Pencil className="w-3.5 h-3.5" /> Edit
