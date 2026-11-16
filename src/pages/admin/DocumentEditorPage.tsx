@@ -244,7 +244,7 @@ export default function DocumentEditorPage() {
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-2">Body</label>
-              <RichEditor value={body} onChange={setBody} placeholder="Start writing your document…" minHeight="480px" />
+              <RichEditor value={body} onChange={setBody} placeholder="Start writing your document…" minHeight="480px" maxHeight="70vh" />
             </div>
           </motion.div>
         </div>

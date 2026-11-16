@@ -191,6 +191,7 @@ export default function ArticleEditorPage() {
                   onChange={(html) => setForm((prev) => ({ ...prev, body: html }))}
                   placeholder="Write the full article body here…"
                   minHeight="400px"
+                  maxHeight="70vh"
                 />
               )}
             </div>

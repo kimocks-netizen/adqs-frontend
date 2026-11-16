@@ -19,6 +19,7 @@ interface RichEditorProps {
   onChange: (html: string) => void;
   placeholder?: string;
   minHeight?: string;
+  maxHeight?: string;
 }
 
 const FONT_COLORS = [
@@ -133,7 +134,7 @@ function ColorPicker({ colors, onSelect, onClear, currentColor, title, icon }: {
   );
 }
 
-export default function RichEditor({ value, onChange, placeholder = 'Start writing…', minHeight = '320px' }: RichEditorProps) {
+export default function RichEditor({ value, onChange, placeholder = 'Start writing…', minHeight = '320px', maxHeight = '600px' }: RichEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -154,9 +155,9 @@ export default function RichEditor({ value, onChange, placeholder = 'Start writi
   const currentHighlight = editor.getAttributes('highlight').color as string | undefined;
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-visible focus-within:ring-2 focus-within:ring-brand-primary/20 focus-within:border-brand-primary/50 transition-colors">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 bg-gray-50 border-b border-gray-200 rounded-t-lg">
+    <div className="border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-brand-primary/20 focus-within:border-brand-primary/50 transition-colors flex flex-col" style={{ maxHeight }}>
+      {/* Toolbar — sticky */}
+      <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 bg-gray-50 border-b border-gray-200 rounded-t-lg sticky top-0 z-10 shrink-0">
         <ToolbarBtn onClick={() => editor.chain().focus().undo().run()} title="Undo"><Undo className="w-4 h-4" /></ToolbarBtn>
         <ToolbarBtn onClick={() => editor.chain().focus().redo().run()} title="Redo"><Redo className="w-4 h-4" /></ToolbarBtn>
         <Divider />
@@ -200,10 +201,10 @@ export default function RichEditor({ value, onChange, placeholder = 'Start writi
         <ToolbarBtn onClick={() => editor.chain().focus().setTextAlign('justify').run()} active={editor.isActive({ textAlign: 'justify' })} title="Justify"><AlignJustify className="w-4 h-4" /></ToolbarBtn>
       </div>
 
-      {/* Editor area */}
+      {/* Editor area — scrollable */}
       <EditorContent
         editor={editor}
-        className="prose prose-sm max-w-none px-4 py-3 text-gray-700"
+        className="prose prose-sm max-w-none px-4 py-3 text-gray-700 overflow-y-auto flex-1"
         style={{ minHeight }}
       />
     </div>
