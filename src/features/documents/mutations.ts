@@ -25,7 +25,7 @@ export function useCreateDocument() {
   return useMutation({
     mutationFn: (payload: Omit<Document, 'id' | 'created_at' | 'updated_at'>) =>
       documentsApi.create(payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: documentKeys.all }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['documents'] }),
   });
 }
 
@@ -34,7 +34,7 @@ export function useUpdateDocument() {
   return useMutation({
     mutationFn: ({ id, ...payload }: Partial<Document> & { id: string }) =>
       documentsApi.update(id, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: documentKeys.all }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['documents'] }),
   });
 }
 
@@ -42,6 +42,6 @@ export function useDeleteDocument() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => documentsApi.remove(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: documentKeys.all }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['documents'] }),
   });
 }

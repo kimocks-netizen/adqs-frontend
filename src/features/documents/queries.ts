@@ -12,6 +12,7 @@ export function useFoldersQuery() {
   return useQuery({
     queryKey: documentKeys.folders,
     queryFn: () => documentsApi.getFolders(),
+    staleTime: 0,
   });
 }
 
@@ -19,6 +20,7 @@ export function useDocumentsQuery(folderId?: string) {
   return useQuery({
     queryKey: documentKeys.list(folderId),
     queryFn: () => documentsApi.getAll(folderId),
+    staleTime: 0,
   });
 }
 
@@ -27,5 +29,6 @@ export function useDocumentQuery(id: string) {
     queryKey: documentKeys.detail(id),
     queryFn: () => documentsApi.getById(id),
     enabled: !!id,
+    staleTime: 0,
   });
 }

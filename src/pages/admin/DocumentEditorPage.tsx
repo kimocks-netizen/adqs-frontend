@@ -84,7 +84,11 @@ export default function DocumentEditorPage() {
 
   function applyTemplate(t: DocType) {
     setType(t);
-    if (!isEdit) setBody(TEMPLATES[t]);
+    if (!isEdit) {
+      setBody(TEMPLATES[t]);
+      setBodyReady(false);
+      setTimeout(() => setBodyReady(true), 0);
+    }
   }
 
   function handleSave() {
@@ -200,7 +204,7 @@ export default function DocumentEditorPage() {
                   Loading content…
                 </div>
               ) : (
-                <RichEditor key={id ?? 'new'} value={body} onChange={setBody} placeholder="Start writing your document…" minHeight="480px" maxHeight="70vh" />
+                <RichEditor key={`${id ?? 'new'}-${type}`} value={body} onChange={setBody} placeholder="Start writing your document…" minHeight="480px" maxHeight="70vh" />
               )}
             </div>
           </motion.div>
