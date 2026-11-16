@@ -6,9 +6,6 @@ import { useServicesQuery } from '@/features/services/queries';
 import { ROUTES } from '@/routes/routes';
 import { contactApi } from '@/features/contact/api';
 
-  const { data: servicesData } = useServicesQuery();
-  const AREAS = (servicesData?.data ?? []).map((s) => s.title);
-
 interface FormState {
   name: string;
   email: string;
@@ -30,6 +27,9 @@ const INFO = [
 type ModalStep = 'prompt' | 'sending' | 'enter' | 'verifying' | 'verified';
 
 export default function ContactPage() {
+  const { data: servicesData } = useServicesQuery();
+  const AREAS = (servicesData?.data ?? []).map((s) => s.title);
+
   const [form, setForm]         = useState<FormState>(EMPTY);
   const [errors, setErrors]     = useState<Partial<FormState>>({});
   const [submitted, setSubmitted] = useState(false);
