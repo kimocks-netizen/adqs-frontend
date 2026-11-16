@@ -13,6 +13,7 @@ export function useFoldersQuery() {
     queryKey: documentKeys.folders,
     queryFn: () => documentsApi.getFolders(),
     staleTime: 0,
+    refetchOnMount: 'always',
   });
 }
 
@@ -21,6 +22,7 @@ export function useDocumentsQuery(folderId?: string) {
     queryKey: documentKeys.list(folderId),
     queryFn: () => documentsApi.getAll(folderId),
     staleTime: 0,
+    refetchOnMount: 'always',
   });
 }
 
@@ -30,5 +32,6 @@ export function useDocumentQuery(id: string) {
     queryFn: () => documentsApi.getById(id),
     enabled: !!id,
     staleTime: 0,
+    refetchOnMount: 'always',
   });
 }
