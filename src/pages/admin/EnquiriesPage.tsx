@@ -4,8 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Trash2, X, CheckCheck, Eye, Search, ShieldCheck, ShieldOff, RefreshCw, Reply, ChevronLeft, ChevronRight } from 'lucide-react';
 import { contactApi, type Enquiry } from '@/features/contact/api';
 
-const PAGE_SIZE = 20;
-
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
 }
@@ -23,20 +21,21 @@ export default function EnquiriesPage() {
   const [search, setSearch]               = useState('');
   const [filterStatus, setFilterStatus]   = useState<'All' | Enquiry['status']>('All');
   const [page, setPage]                   = useState(1);
+  const [limit, setLimit]                 = useState(20);
 
   // Reset to page 1 when filters change
   function applyFilter(s: 'All' | Enquiry['status']) { setFilterStatus(s); setPage(1); }
   function applySearch(v: string)                     { setSearch(v);       setPage(1); }
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['enquiries', filterStatus, search, page],
-    queryFn: () => contactApi.getAll({ status: filterStatus, search, page }),
+    queryKey: ['enquiries', filterStatus, search, page, limit],
+    queryFn: () => contactApi.getAll({ status: filterStatus, search, page, limit }),
     staleTime: 0,
   });
 
   const enquiries  = data?.data  ?? [];
   const total      = data?.count ?? 0;
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(total / limit));
   const newCount   = enquiries.filter((e) => e.status === 'New').length;
 
   const statusMutation = useMutation({
@@ -181,9 +180,19 @@ export default function EnquiriesPage() {
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50">
-                <p className="text-xs text-gray-400">
-                  Page {page} of {totalPages} · {total} total
-                </p>
+                <div className="flex items-center gap-3">
+                  <p className="text-xs text-gray-400">Page {page} of {totalPages} · {total} total</p>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-gray-400">Show</span>
+                    <select
+                      value={limit}
+                      onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
+                      className="text-xs font-semibold border border-gray-200 rounded-lg px-2 py-1 focus:outline-none bg-white"
+                    >
+                      {[10, 20, 50].map((n) => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                </div>
                 <div className="flex items-center gap-1">
                   <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
                     className="p-1.5 rounded-lg text-gray-400 hover:text-brand-primary hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors">

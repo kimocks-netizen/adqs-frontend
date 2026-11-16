@@ -31,11 +31,12 @@ export const contactApi = {
   }) => api.post<{ status: string; message: string }>('/api/contact', data),
 
   // Admin
-  getAll: (params?: { status?: string; search?: string; page?: number }) => {
+  getAll: (params?: { status?: string; search?: string; page?: number; limit?: number }) => {
     const q = new URLSearchParams();
     if (params?.status && params.status !== 'All') q.set('status', params.status);
     if (params?.search) q.set('search', params.search);
     if (params?.page) q.set('page', String(params.page));
+    if (params?.limit) q.set('limit', String(params.limit));
     const qs = q.toString();
     return api.get<{ status: string; data: Enquiry[]; count: number }>(`/api/admin/contact${qs ? '?' + qs : ''}`);
   },
