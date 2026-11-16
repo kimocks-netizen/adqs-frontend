@@ -175,31 +175,32 @@ export default function DocumentsPage() {
 
       {/* Document list */}
       <div className="flex-1 flex flex-col min-w-0 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <span className="font-bold text-brand-primary text-lg">{activeFolder?.name ?? '…'}</span>
-            <ChevronRight className="w-4 h-4" />
-            <span>{totalCount} document{totalCount !== 1 ? 's' : ''}</span>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 text-sm text-gray-500 min-w-0">
+            <span className="font-bold text-brand-primary truncate">{activeFolder?.name ?? '…'}</span>
+            <span className="text-gray-300 shrink-0">/</span>
+            <span className="shrink-0 text-xs">{totalCount}</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs text-gray-400">Show</span>
-              <select
-                value={limit}
-                onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
-                className="text-xs font-semibold border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30 bg-white"
-              >
-                {[5, 10, 20, 50].map((n) => <option key={n} value={n}>{n}</option>)}
-              </select>
-              <span className="text-xs text-gray-400">per page</span>
-            </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Per-page selector — just the number, no label on mobile */}
+            <select
+              value={limit}
+              onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
+              className="text-xs font-semibold border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30 bg-white"
+              title="Documents per page"
+            >
+              {[5, 10, 20, 50].map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
             <Link
               to={`/admin/documents/new?folder=${activeFolderIdResolved}`}
-              className="flex items-center gap-2 bg-brand-gradient text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+              className="flex items-center gap-1.5 bg-brand-gradient text-white text-xs font-semibold px-3 py-2 rounded-lg hover:opacity-90 transition-opacity"
             >
-              <FilePlus className="w-4 h-4" /> <span className="hidden sm:inline">New </span>Document
+              <FilePlus className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">New Document</span>
+              <span className="sm:hidden">New</span>
             </Link>
           </div>
+        </div>
         </div>
 
         <div className="relative">
@@ -240,22 +241,27 @@ export default function DocumentsPage() {
                   <span className={`text-xs font-bold px-2.5 py-1 rounded-full shrink-0 ${STATUS_STYLE[doc.status]}`}>
                     {doc.status}
                   </span>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       onClick={() => setPreviewDoc(doc)}
-                      className="flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-brand-primary border border-gray-200 px-2.5 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-brand-primary border border-gray-200 px-2 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                      title="Preview"
                     >
-                      <Eye className="w-3.5 h-3.5" /> Preview
+                      <Eye className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Preview</span>
                     </button>
                     <Link
                       to={`/admin/documents/${doc.id}/edit`}
-                      className="flex items-center gap-1 text-xs font-semibold text-brand-primary border border-brand-primary/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-primary/5 transition-colors"
+                      className="flex items-center gap-1 text-xs font-semibold text-brand-primary border border-brand-primary/20 px-2 py-1.5 rounded-lg hover:bg-brand-primary/5 transition-colors"
+                      title="Edit"
                     >
-                      Edit
+                      <span className="hidden sm:inline">Edit</span>
+                      <span className="sm:hidden text-xs">Edit</span>
                     </Link>
                     <button
                       onClick={() => setDeleteDocId(doc.id)}
                       className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
