@@ -2,11 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Clock, CheckCircle, Send, ShieldCheck, X } from 'lucide-react';
-import { dummyServices } from '@/data/services';
+import { useServicesQuery } from '@/features/services/queries';
 import { ROUTES } from '@/routes/routes';
 import { contactApi } from '@/features/contact/api';
 
-const AREAS = dummyServices.map((s) => s.title);
+  const { data: servicesData } = useServicesQuery();
+  const AREAS = (servicesData?.data ?? []).map((s) => s.title);
 
 interface FormState {
   name: string;

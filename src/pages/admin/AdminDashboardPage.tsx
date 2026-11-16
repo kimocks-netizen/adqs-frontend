@@ -5,7 +5,7 @@ import {
   PlusCircle, Eye, TrendingUp, MousePointerClick,
   BarChart2, Send, Smile,
 } from 'lucide-react';
-import { useArticleStore } from '@/stores/useArticleStore';
+import { useAdminArticlesQuery } from '@/features/articles/queries';
 import { ROUTES } from '@/routes/routes';
 
 function formatDate(iso: string) {
@@ -44,7 +44,8 @@ const TOP_SERVICES = [
 ];
 
 export default function AdminDashboardPage() {
-  const articleCount = useArticleStore((s) => s.articles.length);
+  const { data: articlesData } = useAdminArticlesQuery();
+  const articleCount = articlesData?.count ?? 0;
 
   const STATS = [
     { label: 'Total Documents',    value: '12',               icon: FolderOpen, color: 'bg-blue-50 text-blue-600',   sub: 'Across 6 folders' },
