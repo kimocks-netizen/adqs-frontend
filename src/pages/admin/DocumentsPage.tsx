@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FolderOpen, Folder, PlusCircle, FilePlus, Trash2,
-  FileText, ChevronRight, Search, X, Check,
+  FileText, ChevronRight, Search, X, Check, Eye, Download,
 } from 'lucide-react';
 import { useFoldersQuery, useDocumentsQuery } from '@/features/documents/queries';
 import { useCreateFolder, useDeleteFolder, useDeleteDocument } from '@/features/documents/mutations';
-import type { DocFolder } from '@/features/documents/api';
+import type { DocFolder, Document } from '@/features/documents/api';
+import logo from '@/assets/logo.jpg';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -28,6 +29,10 @@ export default function DocumentsPage() {
   const { data: docsData } = useDocumentsQuery(activeFolderIdResolved || undefined);
   const allDocs = docsData?.data ?? [];
 
+  // Fetch ALL docs (no folder filter) just for folder counts
+  const { data: allDocsData } = useDocumentsQuery();
+  const allDocsForCount = allDocsData?.data ?? [];
+
   const createFolder = useCreateFolder();
   const deleteFolder = useDeleteFolder();
   const deleteDocument = useDeleteDocument();
@@ -37,6 +42,7 @@ export default function DocumentsPage() {
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [deleteDocId, setDeleteDocId] = useState<string | null>(null);
   const [deleteFolderId, setDeleteFolderId] = useState<string | null>(null);
+  const [previewDoc, setPreviewDoc] = useState<Document | null>(null);
 
   const activeFolder = folders.find((f) => f.id === activeFolderIdResolved);
   const rootFolders = folders.filter((f) => f.parent_id === null);
@@ -62,7 +68,7 @@ export default function DocumentsPage() {
   function FolderItem({ folder }: { folder: DocFolder }) {
     const isActive = folder.id === activeFolderIdResolved;
     const subs = subFolders(folder.id);
-    const count = allDocs.filter((d) => d.folder_id === folder.id).length;
+    const count = allDocsForCount.filter((d) => d.folder_id === folder.id).length;
 
     return (
       <div>
@@ -117,7 +123,7 @@ export default function DocumentsPage() {
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide w-full">
           {rootFolders.map((f) => {
             const isActive = f.id === activeFolderIdResolved;
-            const count = allDocs.filter((d) => d.folder_id === f.id).length;
+            const count = allDocsForCount.filter((d) => d.folder_id === f.id).length;
             return (
               <button
                 key={f.id}
@@ -201,7 +207,7 @@ export default function DocumentsPage() {
                   key={doc.id}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="group bg-white rounded-xl border border-gray-100 shadow-card px-5 py-4 flex items-center gap-4 hover:border-brand-primary/20 transition-colors"
+                  className="bg-white rounded-xl border border-gray-100 shadow-card px-5 py-4 flex items-center gap-4 hover:border-brand-primary/20 transition-colors"
                 >
                   <div className="w-9 h-9 rounded-lg bg-brand-primary/10 flex items-center justify-center shrink-0">
                     <FileText className="w-4 h-4 text-brand-primary" />
@@ -213,11 +219,23 @@ export default function DocumentsPage() {
                   <span className={`text-xs font-bold px-2.5 py-1 rounded-full shrink-0 ${STATUS_STYLE[doc.status]}`}>
                     {doc.status}
                   </span>
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Link to={`/admin/documents/${doc.id}/edit`} className="text-xs font-semibold text-brand-primary hover:underline">
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => setPreviewDoc(doc)}
+                      className="flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-brand-primary border border-gray-200 px-2.5 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> Preview
+                    </button>
+                    <Link
+                      to={`/admin/documents/${doc.id}/edit`}
+                      className="flex items-center gap-1 text-xs font-semibold text-brand-primary border border-brand-primary/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-primary/5 transition-colors"
+                    >
                       Edit
                     </Link>
-                    <button onClick={() => setDeleteDocId(doc.id)} className="text-gray-300 hover:text-red-500 transition-colors">
+                    <button
+                      onClick={() => setDeleteDocId(doc.id)}
+                      className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -279,6 +297,68 @@ export default function DocumentsPage() {
                   >
                     Delete
                   </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+      {/* Preview modal */}
+      <AnimatePresence>
+        {previewDoc && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 z-50" onClick={() => setPreviewDoc(null)} />
+            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} className="fixed inset-4 sm:inset-8 z-50 bg-gray-100 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+              <div className="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-100 shrink-0">
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-brand-primary" />
+                  <span className="text-sm font-semibold text-brand-primary truncate max-w-xs">{previewDoc.title}</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[previewDoc.status]}`}>{previewDoc.status}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Link
+                    to={`/admin/documents/${previewDoc.id}/edit`}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-brand-primary border border-brand-primary/20 px-3 py-1.5 rounded-lg hover:bg-brand-primary/5"
+                  >
+                    Edit
+                  </Link>
+                  <button onClick={() => setPreviewDoc(null)} className="text-gray-400 hover:text-gray-700">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto py-8 px-4">
+                <div className="bg-white shadow-2xl mx-auto p-12" style={{ width: '794px', minWidth: '794px', fontFamily: 'Georgia, serif' }}>
+                  {previewDoc.watermark && (
+                    <div style={{ position: 'relative' }}>
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+                        <span style={{ fontSize: '96px', fontWeight: 900, color: 'rgba(11,40,84,0.06)', transform: 'rotate(-35deg)', whiteSpace: 'nowrap', userSelect: 'none', letterSpacing: '0.1em' }}>DRAFT</span>
+                      </div>
+                    </div>
+                  )}
+                  {/* Header */}
+                  <div style={{ borderBottom: '2px solid #C79527', paddingBottom: '12px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <img src={logo} alt="ADQS" style={{ height: '40px', width: 'auto', borderRadius: '4px' }} />
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: '13px', color: '#0B2854' }}>Adequate Strategies (Pty) Ltd</div>
+                        <div style={{ fontSize: '11px', color: '#888' }}>Legal Consulting · Shere, Pretoria, Gauteng</div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: '#C79527', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{previewDoc.type}</div>
+                      <div style={{ fontSize: '11px', color: '#888' }}>Ref: ADQS-{previewDoc.id.slice(-6)}</div>
+                    </div>
+                  </div>
+                  {/* Title */}
+                  <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#0B2854', margin: '0 0 20px 0' }}>{previewDoc.title}</h1>
+                  {/* Body */}
+                  <div style={{ fontSize: '13px', lineHeight: '1.8', color: '#333' }} className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: previewDoc.body }} />
+                  {/* Footer */}
+                  <div style={{ borderTop: '1px solid #e5e7eb', marginTop: '40px', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#aaa' }}>
+                    <span>Adequate Strategies (Pty) Ltd · 252 Cole Road, Shere, Pretoria · info@adqs.co.za</span>
+                    <span>Confidential</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
