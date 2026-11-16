@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PlusCircle, Pencil, Trash2, Search, FileText, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useAdminArticlesQuery } from '@/features/articles/queries';
 import { useDeleteArticle, useToggleArticleHidden } from '@/features/articles/mutations';
+import { MobileTable } from '@/components/admin/MobileTable';
 import { ROUTES } from '@/routes/routes';
 
 function formatDate(iso: string) {
@@ -66,7 +67,7 @@ export default function ArticlesPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-card border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-card border border-gray-100 overflow-hidden hidden md:block">
         {isLoading ? (
           <div className="flex items-center justify-center py-16 gap-3 text-gray-400">
             <RefreshCw className="w-5 h-5 animate-spin" />
@@ -135,6 +136,47 @@ export default function ArticlesPage() {
           </table>
         )}
       </div>
+
+      {/* Mobile card list */}
+      {!isLoading && !isError && (
+        <MobileTable
+          empty="No articles found."
+          rows={articles.map((article) => ({
+            id: article.id,
+            primary: article.title,
+            secondary: `${article.category} · ${formatDate(article.published_at)}`,
+            badge: (
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                article.hidden ? 'bg-gray-100 text-gray-400'
+                : article.status === 'published' ? 'bg-green-100 text-green-700'
+                : 'bg-yellow-100 text-yellow-700'
+              }`}>
+                {article.hidden ? 'hidden' : article.status}
+              </span>
+            ),
+            actions: (
+              <>
+                <button
+                  onClick={() => toggleHiddenMutation.mutate({ id: article.id, hidden: !article.hidden })}
+                  className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-colors ${
+                    article.hidden ? 'border-brand-secondary/30 text-brand-secondary hover:bg-brand-secondary/5' : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  {article.hidden ? <><Eye className="w-3.5 h-3.5" /> Show</> : <><EyeOff className="w-3.5 h-3.5" /> Hide</>}
+                </button>
+                <Link to={ROUTES.ADMIN_ARTICLE_EDIT(article.id)}
+                  className="flex items-center gap-1 text-xs font-semibold text-brand-primary border border-brand-primary/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-primary/5">
+                  <Pencil className="w-3.5 h-3.5" /> Edit
+                </Link>
+                <button onClick={() => setDeleteId(article.id)}
+                  className="ml-auto p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </>
+            ),
+          }))}
+        />
+      )}
 
       <AnimatePresence>
         {deleteId && (
