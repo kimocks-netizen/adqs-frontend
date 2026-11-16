@@ -18,4 +18,14 @@ export const servicesApi = {
 
   getBySlug: (slug: string) =>
     api.get<{ status: string; data: Service }>(`/api/services/${slug}`),
+
+  // Admin
+  create: (data: Partial<Service>) =>
+    api.post<{ status: string; data: Service }>('/api/admin/services', data),
+
+  update: (id: string, data: Partial<Service>) =>
+    api.put<{ status: string; data: Service }>(`/api/admin/services/${id}`, data),
+
+  remove: (id: string) =>
+    api.delete<{ status: string }>(`/api/admin/services/${id}`),
 };
