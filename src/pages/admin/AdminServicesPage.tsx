@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PlusCircle, Pencil, Trash2, Check, X, ToggleLeft, ToggleRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { useServicesQuery } from '@/features/services/queries';
 import { useCreateService, useUpdateService, useDeleteService } from '@/features/services/mutations';
-import { MobileTable } from '@/components/admin/MobileTable';
 import type { Service } from '@/features/services/api';
 
 const EMPTY: Omit<Service, 'id'> = {
@@ -119,7 +118,7 @@ export default function AdminServicesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -152,8 +151,7 @@ export default function AdminServicesPage() {
       {isLoading ? (
         <div className="flex items-center justify-center py-20 text-gray-400 text-sm">Loading services…</div>
       ) : (
-        <>
-          <div className="hidden md:block space-y-3">
+        <div className="space-y-3">
           {services.map((service) => (
             <motion.div key={service.id} layout className="bg-white rounded-xl border border-gray-100 shadow-card overflow-hidden">
               {editId === service.id ? (
@@ -233,44 +231,7 @@ export default function AdminServicesPage() {
               )}
             </motion.div>
           ))}
-          </div>
-
-          {/* Mobile */}
-          <MobileTable
-            empty="No services found."
-            rows={services.map((service) => ({
-              id: service.id,
-              primary: service.title,
-              secondary: service.summary,
-              badge: (
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${service.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
-                  {service.is_active ? 'Active' : 'Hidden'}
-                </span>
-              ),
-              actions: (
-                <>
-                  <button
-                    onClick={() => handleToggleActive(service)}
-                    className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-colors ${
-                      service.is_active ? 'border-gray-200 text-gray-500 hover:bg-gray-50' : 'border-green-200 text-green-600 hover:bg-green-50'
-                    }`}
-                  >
-                    {service.is_active ? <><ToggleLeft className="w-3.5 h-3.5" /> Hide</> : <><ToggleRight className="w-3.5 h-3.5" /> Show</>}
-                  </button>
-                  <button
-                    onClick={() => { setEditId(service.id); setShowAdd(false); }}
-                    className="flex items-center gap-1 text-xs font-semibold text-brand-primary border border-brand-primary/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-primary/5"
-                  >
-                    <Pencil className="w-3.5 h-3.5" /> Edit
-                  </button>
-                  <button onClick={() => setDeleteId(service.id)} className="ml-auto p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </>
-              ),
-            }))}
-          />
-        </>
+        </div>
       )}
 
       {/* Delete modal */}
