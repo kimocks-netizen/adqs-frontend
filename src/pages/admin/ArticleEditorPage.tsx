@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Save, Eye, Upload, X, Check, ZoomIn, ZoomOut } from 'lucide-react';
+import { ArrowLeft, Save, Eye, Upload, X, Check, ZoomIn, ZoomOut, UserPlus } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import type { Area } from 'react-easy-crop';
 import { useCreateArticle, useUpdateArticle } from '@/features/articles/mutations';
@@ -39,6 +39,24 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string>
   return new Promise((resolve) => canvas.toBlob((blob) => resolve(URL.createObjectURL(blob!)), 'image/jpeg', 0.92));
 }
 
+const AUTHORS_KEY = 'adqs_authors';
+const DEFAULT_AUTHORS = ['Bright Ngwenyama Gunde'];
+
+function getSavedAuthors(): string[] {
+  try {
+    const raw = localStorage.getItem(AUTHORS_KEY);
+    const parsed = raw ? JSON.parse(raw) : DEFAULT_AUTHORS;
+    return Array.from(new Set([...DEFAULT_AUTHORS, ...parsed]));
+  } catch { return DEFAULT_AUTHORS; }
+}
+
+function saveAuthor(name: string) {
+  const existing = getSavedAuthors();
+  if (!existing.includes(name)) {
+    localStorage.setItem(AUTHORS_KEY, JSON.stringify([...existing, name]));
+  }
+}
+
 const EMPTY: Omit<Article, 'id'> = {
   title: '', slug: '', introduction: '', body: '', featured_image_url: '',
   category: '', author: 'Bright Ngwenyama Gunde', status: 'draft',
@@ -60,6 +78,9 @@ export default function ArticleEditorPage() {
   const [slugManual, setSlugManual] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [authors, setAuthors] = useState<string[]>(getSavedAuthors);
+  const [addingAuthor, setAddingAuthor] = useState(false);
+  const [newAuthorInput, setNewAuthorInput] = useState('');
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -85,11 +106,21 @@ export default function ArticleEditorPage() {
 
   function handleSubmit(status: 'draft' | 'published') {
     const payload = { ...form, status };
-    if (status === 'published' && !isEdit) payload.published_at = new Date().toISOString();
+    if (form.author) saveAuthor(form.author);
     const onSuccess = () => { setSaved(true); setTimeout(() => navigate(ROUTES.ADMIN_ARTICLES), 800); };
     isEdit
       ? updateMutation.mutate(payload, { onSuccess })
       : createMutation.mutate(payload, { onSuccess });
+  }
+
+  function handleAddAuthor() {
+    const name = newAuthorInput.trim();
+    if (!name) return;
+    saveAuthor(name);
+    setAuthors(getSavedAuthors());
+    setForm((prev) => ({ ...prev, author: name }));
+    setNewAuthorInput('');
+    setAddingAuthor(false);
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -259,7 +290,52 @@ export default function ArticleEditorPage() {
           {/* Author */}
           <div className="bg-white rounded-xl shadow-card border border-gray-100 p-5 space-y-3">
             <h2 className="text-sm font-bold text-brand-primary uppercase tracking-widest">Author</h2>
-            <input name="author" value={form.author} onChange={handleChange} className={inputClass} />
+            {!addingAuthor ? (
+              <>
+                <select
+                  value={form.author}
+                  onChange={(e) => {
+                    if (e.target.value === '__new__') { setAddingAuthor(true); }
+                    else setForm((prev) => ({ ...prev, author: e.target.value }));
+                  }}
+                  className={inputClass + ' bg-white'}
+                >
+                  {authors.map((a) => <option key={a} value={a}>{a}</option>)}
+                  <option value="__new__">+ Add new author…</option>
+                </select>
+              </>
+            ) : (
+              <div className="space-y-2">
+                <input
+                  autoFocus
+                  value={newAuthorInput}
+                  onChange={(e) => setNewAuthorInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddAuthor()}
+                  placeholder="Full name…"
+                  className={inputClass}
+                />
+                <div className="flex gap-2">
+                  <button onClick={handleAddAuthor} className="flex items-center gap-1.5 flex-1 justify-center bg-brand-gradient text-white text-xs font-bold py-2 rounded-lg hover:opacity-90">
+                    <UserPlus className="w-3.5 h-3.5" /> Add
+                  </button>
+                  <button onClick={() => { setAddingAuthor(false); setNewAuthorInput(''); }} className="flex-1 text-xs font-semibold border border-gray-200 text-gray-500 py-2 rounded-lg hover:bg-gray-50">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Publish date */}
+          <div className="bg-white rounded-xl shadow-card border border-gray-100 p-5 space-y-3">
+            <h2 className="text-sm font-bold text-brand-primary uppercase tracking-widest">Publish Date</h2>
+            <p className="text-xs text-gray-400">Set a past date to backdate the article.</p>
+            <input
+              type="datetime-local"
+              value={form.published_at ? form.published_at.slice(0, 16) : ''}
+              onChange={(e) => setForm((prev) => ({ ...prev, published_at: e.target.value ? new Date(e.target.value).toISOString() : prev.published_at }))}
+              className={inputClass}
+            />
           </div>
         </motion.div>
       </div>
