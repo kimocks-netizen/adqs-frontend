@@ -256,9 +256,6 @@ export default function DocumentsPage() {
                         {doc.type} · {doc.document_date ? formatDate(doc.document_date) : formatDate(doc.updated_at)}
                       </p>
                     </div>
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${STATUS_STYLE[doc.status]}`}>
-                      {doc.status}
-                    </span>
                   </div>
                   {/* Action row */}
                   <div className="flex items-center gap-2 mt-2.5 pt-2.5 border-t border-gray-100">
@@ -267,6 +264,9 @@ export default function DocumentsPage() {
                     >
                       <Eye className="w-3.5 h-3.5" /> Preview
                     </button>
+                    <span className={`text-xs font-bold px-2.5 py-1.5 rounded-lg ${STATUS_STYLE[doc.status]}`}>
+                      {doc.status}
+                    </span>
                     <Link to={`/admin/documents/${doc.id}/edit`}
                       className="flex items-center gap-1 text-xs font-semibold text-brand-primary border border-brand-primary/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-primary/5 transition-colors"
                     >
