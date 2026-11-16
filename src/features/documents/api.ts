@@ -15,6 +15,7 @@ export interface Document {
   body: string;
   status: 'Draft' | 'Final';
   watermark: boolean;
+  document_date: string;
   created_at: string;
   updated_at: string;
 }

@@ -53,6 +53,7 @@ export default function DocumentEditorPage() {
   const [status, setStatus]     = useState<DocStatus>('Draft');
   const [body, setBody]         = useState(TEMPLATES['Letter']);
   const [watermark, setWatermark] = useState(false);
+  const [documentDate, setDocumentDate] = useState(new Date().toISOString().slice(0, 10));
   const [showPreview, setShowPreview] = useState(false);
   const [saved, setSaved]       = useState(false);
   const [bodyReady, setBodyReady] = useState(!isEdit); // new doc = ready immediately
@@ -74,6 +75,7 @@ export default function DocumentEditorPage() {
       setStatus(existing.status);
       setBody(existing.body ?? '');
       setWatermark(existing.watermark);
+      setDocumentDate(existing.document_date ?? new Date().toISOString().slice(0, 10));
       setBodyReady(true);
     }
   }, [existing]);
@@ -96,7 +98,7 @@ export default function DocumentEditorPage() {
     // Use first folder as fallback if folderId still empty
     const resolvedFolderId = folderId || folders[0]?.id;
     if (!resolvedFolderId) return;
-    const payload = { folder_id: resolvedFolderId, title, type, body, status, watermark };
+    const payload = { folder_id: resolvedFolderId, title, type, body, status, watermark, document_date: documentDate };
     const onSuccess = () => { setSaved(true); setTimeout(() => navigate('/admin/documents'), 800); };
     isEdit
       ? updateDocument.mutate({ id, ...payload }, { onSuccess })
@@ -159,7 +161,7 @@ export default function DocumentEditorPage() {
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '12px', fontWeight: 700, color: '#C79527', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{type}</div>
-            <div style={{ fontSize: '11px', color: '#888' }}>Ref: ADQS-{id?.slice(-6) ?? Date.now().toString().slice(-6)}</div>
+            <div style={{ fontSize: '11px', color: '#888' }}>Ref: ADQS-{id?.slice(-6) ?? Date.now().toString().slice(-6)} · {new Date(documentDate).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
           </div>
         </div>
         {title && <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#0B2854', margin: '0 0 20px 0', position: 'relative', zIndex: 1 }}>{title}</h1>}
@@ -257,6 +259,18 @@ export default function DocumentEditorPage() {
             <select value={folderId} onChange={(e) => setFolderId(e.target.value)} className={inputClass + ' bg-white'}>
               {folders.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
             </select>
+          </div>
+
+          {/* Document date */}
+          <div className="bg-white rounded-xl shadow-card border border-gray-100 p-5 space-y-3">
+            <h2 className="text-sm font-bold text-brand-primary uppercase tracking-widest">Document Date</h2>
+            <p className="text-xs text-gray-400">Date shown on the document. Can be backdated.</p>
+            <input
+              type="date"
+              value={documentDate}
+              onChange={(e) => setDocumentDate(e.target.value)}
+              className={inputClass}
+            />
           </div>
 
           {/* Watermark */}

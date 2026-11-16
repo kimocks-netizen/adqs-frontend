@@ -214,7 +214,7 @@ export default function DocumentsPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-gray-800 truncate">{doc.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{doc.type} · {formatDate(doc.updated_at)}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{doc.type} · {doc.document_date ? new Date(doc.document_date).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' }) : formatDate(doc.updated_at)}</p>
                   </div>
                   <span className={`text-xs font-bold px-2.5 py-1 rounded-full shrink-0 ${STATUS_STYLE[doc.status]}`}>
                     {doc.status}
