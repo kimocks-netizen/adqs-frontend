@@ -16,10 +16,10 @@ export function useCreateService() {
   });
 }
 
-export function useUpdateService(id: string) {
+export function useUpdateService() {
   const invalidate = useInvalidateServices();
   return useMutation({
-    mutationFn: (data: Partial<Service>) => servicesApi.update(id, data),
+    mutationFn: ({ id, ...data }: Partial<Service> & { id: string }) => servicesApi.update(id, data),
     onSuccess: invalidate,
   });
 }

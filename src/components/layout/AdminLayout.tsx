@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import {
   LayoutDashboard, FolderOpen, Mail, LogOut,
-  ChevronRight, User, FileText,
+  ChevronRight, User, FileText, Briefcase,
 } from 'lucide-react';
 import logo from '@/assets/logo.jpg';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -11,6 +11,7 @@ const NAV = [
   { to: ROUTES.ADMIN,           label: 'Home',      icon: LayoutDashboard, end: true  },
   { to: ROUTES.ADMIN_DOCUMENTS, label: 'Docs',      icon: FolderOpen,      end: false },
   { to: ROUTES.ADMIN_ARTICLES,  label: 'Articles',  icon: FileText,        end: false },
+  { to: '/admin/services',      label: 'Services',  icon: Briefcase,       end: false },
   { to: ROUTES.ADMIN_ENQUIRIES, label: 'Enquiries', icon: Mail,            end: false },
 ];
 

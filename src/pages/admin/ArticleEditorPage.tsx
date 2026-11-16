@@ -5,7 +5,7 @@ import { ArrowLeft, Save, Eye, Upload, X, Check, ZoomIn, ZoomOut } from 'lucide-
 import Cropper from 'react-easy-crop';
 import type { Area } from 'react-easy-crop';
 import { useCreateArticle, useUpdateArticle } from '@/features/articles/mutations';
-import { useAdminArticlesQuery } from '@/features/articles/queries';
+import { useAdminArticleQuery } from '@/features/articles/queries';
 import { ROUTES } from '@/routes/routes';
 import type { Article } from '@/types';
 import RichEditor from '@/components/admin/RichEditor';
@@ -50,8 +50,8 @@ export default function ArticleEditorPage() {
   const navigate = useNavigate();
   const isEdit = !!id;
 
-  const { data: adminData } = useAdminArticlesQuery();
-  const existing = isEdit ? adminData?.data?.find((a) => a.id === id) : undefined;
+  const { data: adminData } = useAdminArticleQuery(id ?? '');
+  const existing = isEdit ? adminData?.data : undefined;
 
   const createMutation = useCreateArticle();
   const updateMutation = useUpdateArticle(id ?? '');

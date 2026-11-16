@@ -45,6 +45,9 @@ export const articlesApi = {
     api.get<ArticleResponse>(`/api/articles/${slug}`),
 
   // Admin
+  getById: (id: string) =>
+    api.get<ArticleResponse>(`/api/admin/articles/${id}`),
+
   getAll: (params?: { search?: string; status?: string; page?: number }) => {
     const q = new URLSearchParams();
     if (params?.search) q.set('search', params.search);

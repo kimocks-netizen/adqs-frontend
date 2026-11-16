@@ -6,6 +6,7 @@ export const articleKeys = {
   published: (category?: string, search?: string, page?: number, limit?: number) =>
     ['articles', 'published', category ?? 'All', search ?? '', page ?? 1, limit ?? 12] as const,
   detail:    (slug: string) => ['articles', 'detail', slug] as const,
+  adminDetail: (id: string) => ['articles', 'admin', 'detail', id] as const,
   admin:     (search?: string, status?: string, page?: number) =>
     ['articles', 'admin', search ?? '', status ?? 'all', page ?? 1] as const,
 };
@@ -25,6 +26,15 @@ export function useArticleQuery(slug: string) {
     enabled: !!slug,
     staleTime: 5 * 60 * 1000,
     retry: false,
+  });
+}
+
+export function useAdminArticleQuery(id: string) {
+  return useQuery({
+    queryKey: articleKeys.adminDetail(id),
+    queryFn: () => articlesApi.getById(id),
+    enabled: !!id,
+    staleTime: 0,
   });
 }
 
