@@ -4,25 +4,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Save, Eye, Upload, X, Check, ZoomIn, ZoomOut } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import type { Area } from 'react-easy-crop';
-import { useArticleStore } from '@/stores/useArticleStore';
-import { CATEGORIES } from '@/data/articles';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { articlesApi } from '@/features/articles/api';
 import { ROUTES } from '@/routes/routes';
 import type { Article } from '@/types';
 import RichEditor from '@/components/admin/RichEditor';
 
-const EMPTY: Omit<Article, 'id'> = {
-  title: '',
-  slug: '',
-  introduction: '',
-  body: '',
-  featured_image_url: '',
-  category: '',
-  author: 'Bright Ngwenyama Gunde',
-  status: 'draft',
-  published_at: new Date().toISOString(),
-  seo_title: '',
-  seo_description: '',
-};
+const CATEGORIES = [
+  'Legal Updates', 'News', 'Human Rights', 'Labour Relations',
+  'Regulatory Compliance', 'Contracts & Commercial Matters', 'Policy & Governance', 'Access to Justice',
+];
 
 function toSlug(title: string) {
   return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
@@ -48,25 +39,63 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string>
   return new Promise((resolve) => canvas.toBlob((blob) => resolve(URL.createObjectURL(blob!)), 'image/jpeg', 0.92));
 }
 
+const EMPTY: Omit<Article, 'id'> = {
+  title: '', slug: '', introduction: '', body: '', featured_image_url: '',
+  category: '', author: 'Bright Ngwenyama Gunde', status: 'draft',
+  published_at: new Date().toISOString(), seo_title: '', seo_description: '',
+};
+
 export default function ArticleEditorPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { articles, add, update } = useArticleStore();
+  const qc = useQueryClient();
+  const isEdit = !!id;
 
-  const existing = id ? articles.find((a) => a.id === id) : null;
-  const isEdit = !!existing;
+  const { data: existingData } = useQuery({
+    queryKey: ['admin-article', id],
+    queryFn: () => articlesApi.getAll().then(r => ({ data: r.data.find(a => a.id === id) })),
+    enabled: isEdit,
+    staleTime: 0,
+  });
 
-  const [form, setForm] = useState<Omit<Article, 'id'>>(existing ?? EMPTY);
-  const [slugManual, setSlugManual] = useState(isEdit);
+  const existing = existingData?.data;
+
+  const createMutation = useMutation({
+    mutationFn: (data: Partial<Article>) => articlesApi.create(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-articles'] });
+      qc.invalidateQueries({ queryKey: ['articles'] });
+      setSaved(true);
+      setTimeout(() => navigate(ROUTES.ADMIN_ARTICLES), 800);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (data: Partial<Article>) => articlesApi.update(id!, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-articles'] });
+      qc.invalidateQueries({ queryKey: ['articles'] });
+      setSaved(true);
+      setTimeout(() => navigate(ROUTES.ADMIN_ARTICLES), 800);
+    },
+  });
+
+  const [form, setForm] = useState<Omit<Article, 'id'>>(EMPTY);
+  const [slugManual, setSlugManual] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-
-  // Image crop state
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (existing) {
+      setForm(existing);
+      setSlugManual(true);
+    }
+  }, [existing]);
 
   useEffect(() => {
     if (!slugManual) setForm((prev) => ({ ...prev, slug: toSlug(prev.title) }));
@@ -79,15 +108,9 @@ export default function ArticleEditorPage() {
   }
 
   function handleSubmit(status: 'draft' | 'published') {
-    const article: Article = {
-      id: existing?.id ?? String(Date.now()),
-      ...form,
-      status,
-      published_at: status === 'published' ? new Date().toISOString() : form.published_at,
-    };
-    isEdit ? update(article) : add(article);
-    setSaved(true);
-    setTimeout(() => navigate(ROUTES.ADMIN_ARTICLES), 800);
+    const payload = { ...form, status };
+    if (status === 'published' && !isEdit) payload.published_at = new Date().toISOString();
+    isEdit ? updateMutation.mutate(payload) : createMutation.mutate(payload);
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -105,11 +128,10 @@ export default function ArticleEditorPage() {
     if (!cropSrc || !croppedAreaPixels) return;
     const url = await getCroppedImg(cropSrc, croppedAreaPixels);
     setForm((prev) => ({ ...prev, featured_image_url: url }));
-    setCropSrc(null);
-    setZoom(1);
-    setCrop({ x: 0, y: 0 });
+    setCropSrc(null); setZoom(1); setCrop({ x: 0, y: 0 });
   }
 
+  const isPending = createMutation.isPending || updateMutation.isPending;
   const inputClass = 'w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50';
 
   return (
@@ -142,7 +164,8 @@ export default function ArticleEditorPage() {
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Introduction / Excerpt *</label>
-              <textarea name="introduction" value={form.introduction} onChange={handleChange} rows={3} placeholder="Brief summary shown on the articles list…" className={inputClass + ' resize-none'} />
+              <textarea name="introduction" value={form.introduction} onChange={handleChange} rows={3} maxLength={300} placeholder="Brief summary shown on the articles list…" className={inputClass + ' resize-none'} />
+              <p className={`text-xs mt-1 text-right ${form.introduction.length > 270 ? 'text-red-400' : 'text-gray-400'}`}>{form.introduction.length}/300</p>
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-2">Body *</label>
@@ -160,11 +183,13 @@ export default function ArticleEditorPage() {
             <h2 className="text-sm font-bold text-brand-primary uppercase tracking-widest">SEO</h2>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">SEO Title</label>
-              <input name="seo_title" value={form.seo_title ?? ''} onChange={handleChange} placeholder="SEO page title…" className={inputClass} />
+              <input name="seo_title" value={form.seo_title ?? ''} onChange={handleChange} maxLength={60} placeholder="SEO page title…" className={inputClass} />
+              <p className={`text-xs mt-1 text-right ${(form.seo_title?.length ?? 0) > 50 ? 'text-red-400' : 'text-gray-400'}`}>{form.seo_title?.length ?? 0}/60</p>
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">SEO Description</label>
-              <textarea name="seo_description" value={form.seo_description ?? ''} onChange={handleChange} rows={2} placeholder="Meta description (150–160 chars)…" className={inputClass + ' resize-none'} />
+              <textarea name="seo_description" value={form.seo_description ?? ''} onChange={handleChange} rows={2} maxLength={160} placeholder="Meta description (150–160 chars)…" className={inputClass + ' resize-none'} />
+              <p className={`text-xs mt-1 text-right ${(form.seo_description?.length ?? 0) > 140 ? 'text-red-400' : 'text-gray-400'}`}>{form.seo_description?.length ?? 0}/160</p>
             </div>
           </motion.div>
         </div>
@@ -182,14 +207,14 @@ export default function ArticleEditorPage() {
             </button>
             <button
               onClick={() => handleSubmit('published')}
-              disabled={saved}
+              disabled={isPending || saved}
               className="w-full flex items-center justify-center gap-2 bg-brand-gradient text-white text-sm font-bold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60"
             >
-              <Save className="w-4 h-4" /> {saved ? 'Saved!' : 'Publish'}
+              <Save className="w-4 h-4" /> {isPending ? 'Saving…' : saved ? 'Saved!' : 'Publish'}
             </button>
             <button
               onClick={() => handleSubmit('draft')}
-              disabled={saved}
+              disabled={isPending || saved}
               className="w-full flex items-center justify-center gap-2 border border-gray-200 text-gray-600 text-sm font-semibold py-2.5 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60"
             >
               Save as Draft

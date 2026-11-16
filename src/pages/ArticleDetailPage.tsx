@@ -1,55 +1,56 @@
-import { useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, User, ChevronRight, ArrowLeft } from 'lucide-react';
-import { useArticleStore } from '@/stores/useArticleStore';
-import { CATEGORIES } from '@/data/articles';
+import { Calendar, User, ChevronRight, ArrowLeft, RefreshCw } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { articlesApi } from '@/features/articles/api';
 import { ROUTES } from '@/routes/routes';
+
+const CATEGORIES = [
+  'Legal Updates', 'News', 'Human Rights', 'Labour Relations',
+  'Regulatory Compliance', 'Contracts & Commercial Matters', 'Policy & Governance', 'Access to Justice',
+];
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-/** Convert markdown to HTML for legacy dummy data bodies */
-function markdownToHtml(text: string): string {
-  // Check if it's already HTML
-  if (text.trimStart().startsWith('<')) return text;
-  return text
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`)
-    .replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .split(/\n{2,}/)
-    .map((block) => {
-      if (block.startsWith('<h') || block.startsWith('<ul') || block.startsWith('<ol') || block.startsWith('<li')) return block;
-      return `<p>${block.replace(/\n/g, ' ')}</p>`;
-    })
-    .join('\n');
-}
-
 export default function ArticleDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const articles = useArticleStore((s) => s.articles);
-  const article = articles.find((a) => a.slug === slug && !a.hidden);
 
-  const related = useMemo(
-    () => articles.filter((a) => a.slug !== slug && a.category === article?.category).slice(0, 3),
-    [articles, slug, article]
-  );
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['article', slug],
+    queryFn: () => articlesApi.getBySlug(slug!),
+    enabled: !!slug,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
 
-  if (!article) return <Navigate to={ROUTES.INSIGHTS} replace />;
+  const { data: listData } = useQuery({
+    queryKey: ['articles', 'All', ''],
+    queryFn: () => articlesApi.getPublished(),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const article = data?.data;
+  const related = (listData?.data ?? [])
+    .filter((a) => a.slug !== slug && a.category === article?.category)
+    .slice(0, 3);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center gap-3 text-gray-400">
+        <RefreshCw className="w-5 h-5 animate-spin" />
+        <span className="text-sm">Loading article…</span>
+      </div>
+    );
+  }
+
+  if (isError || !article) return <Navigate to={ROUTES.INSIGHTS} replace />;
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero banner */}
       <section className="relative bg-brand-gradient pt-32 pb-0 overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 pb-10">
-          {/* Breadcrumb */}
           <nav className="flex items-center gap-1.5 text-xs text-white/60 mb-6">
             <Link to={ROUTES.HOME} className="hover:text-white transition-colors">Home</Link>
             <ChevronRight className="w-3 h-3" />
@@ -57,7 +58,6 @@ export default function ArticleDetailPage() {
             <ChevronRight className="w-3 h-3" />
             <span className="text-white/90 line-clamp-1">{article.title}</span>
           </nav>
-
           <span className="inline-block text-xs font-bold uppercase tracking-widest text-yellow-300 mb-3">
             {article.category}
           </span>
@@ -71,55 +71,37 @@ export default function ArticleDetailPage() {
         </div>
       </section>
 
-      {/* Featured image */}
       <div className="max-w-6xl mx-auto px-6 -mt-0">
         <div className="h-64 sm:h-80 rounded-b-2xl overflow-hidden shadow-card">
           <img src={article.featured_image_url} alt={article.title} className="w-full h-full object-cover" />
         </div>
       </div>
 
-      {/* Content + Sidebar */}
       <div className="max-w-6xl mx-auto px-6 py-14 grid lg:grid-cols-[1fr_300px] gap-12 items-start">
-        {/* Article body */}
-        <motion.article
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          {/* Introduction */}
+        <motion.article initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <p className="text-lg text-gray-700 font-medium leading-relaxed border-l-4 border-brand-secondary pl-5 mb-8">
             {article.introduction}
           </p>
-
-          <div className="prose prose-sm max-w-none text-gray-700" dangerouslySetInnerHTML={{ __html: markdownToHtml(article.body) }} />
-
-          {/* Back link */}
+          <div className="prose prose-sm max-w-none text-gray-700"
+            dangerouslySetInnerHTML={{ __html: article.body ?? '' }} />
           <div className="mt-12 pt-6 border-t border-gray-100">
-            <Link
-              to={ROUTES.INSIGHTS}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-brand-secondary hover:gap-3 transition-all"
-            >
+            <Link to={ROUTES.INSIGHTS}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-brand-secondary hover:gap-3 transition-all">
               <ArrowLeft className="w-4 h-4" /> Back to Insights
             </Link>
           </div>
         </motion.article>
 
-        {/* Sidebar */}
         <aside className="space-y-8 lg:sticky lg:top-28">
-          {/* Categories */}
           <div className="bg-soft rounded-xl p-5">
             <h4 className="text-sm font-bold uppercase tracking-widest text-brand-primary mb-4">Categories</h4>
             <ul className="space-y-2">
-              {CATEGORIES.filter((c) => c !== 'All').map((cat) => (
+              {CATEGORIES.map((cat) => (
                 <li key={cat}>
-                  <Link
-                    to={ROUTES.INSIGHTS}
-                    state={{ category: cat }}
+                  <Link to={ROUTES.INSIGHTS} state={{ category: cat }}
                     className={`text-sm transition-colors ${
-                      cat === article.category
-                        ? 'text-brand-secondary font-semibold'
-                        : 'text-gray-500 hover:text-brand-primary'
-                    }`}
-                  >
+                      cat === article.category ? 'text-brand-secondary font-semibold' : 'text-gray-500 hover:text-brand-primary'
+                    }`}>
                     {cat}
                   </Link>
                 </li>
@@ -127,7 +109,6 @@ export default function ArticleDetailPage() {
             </ul>
           </div>
 
-          {/* Related articles */}
           {related.length > 0 && (
             <div>
               <h4 className="text-sm font-bold uppercase tracking-widest text-brand-primary mb-4">Related Articles</h4>
@@ -135,11 +116,8 @@ export default function ArticleDetailPage() {
                 {related.map((a) => (
                   <li key={a.id}>
                     <Link to={ROUTES.ARTICLE_DETAIL(a.slug)} className="group flex gap-3 items-start">
-                      <img
-                        src={a.featured_image_url}
-                        alt={a.title}
-                        className="w-16 h-16 rounded-lg object-cover shrink-0"
-                      />
+                      <img src={a.featured_image_url} alt={a.title}
+                        className="w-16 h-16 rounded-lg object-cover shrink-0" />
                       <div>
                         <p className="text-sm font-semibold text-brand-primary leading-snug group-hover:text-brand-secondary transition-colors line-clamp-2">
                           {a.title}
@@ -153,14 +131,11 @@ export default function ArticleDetailPage() {
             </div>
           )}
 
-          {/* CTA */}
           <div className="bg-brand-gradient rounded-xl p-6 text-white text-center">
             <p className="text-sm font-semibold mb-1">Need legal guidance?</p>
             <p className="text-xs text-white/70 mb-4">Our team is ready to assist with your matter.</p>
-            <Link
-              to={ROUTES.CONTACT}
-              className="inline-block bg-brand-secondary text-white text-sm font-bold px-5 py-2 rounded-full hover:opacity-90 transition-opacity"
-            >
+            <Link to={ROUTES.CONTACT}
+              className="inline-block bg-brand-secondary text-white text-sm font-bold px-5 py-2 rounded-full hover:opacity-90 transition-opacity">
               Make an Enquiry
             </Link>
           </div>
