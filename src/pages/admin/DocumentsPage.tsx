@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FolderOpen, Folder, PlusCircle, FilePlus, Trash2,
-  FileText, ChevronRight, Search, X, Check, Eye,
+  FileText, Search, X, Check, Eye,
 } from 'lucide-react';
 import { useFoldersQuery, useDocumentsQuery } from '@/features/documents/queries';
 import { useCreateFolder, useDeleteFolder, useDeleteDocument } from '@/features/documents/mutations';
@@ -19,25 +19,75 @@ const STATUS_STYLE = {
   Final: 'bg-green-100 text-green-700',
 };
 
+// FolderItem outside main component to avoid nested component TS errors
+function FolderItem({
+  folder, activeFolderId, allDocsForCount, subFolders, isDefaultFolder, onSelect, onDelete,
+}: {
+  folder: DocFolder;
+  activeFolderId: string;
+  allDocsForCount: Document[];
+  subFolders: (id: string) => DocFolder[];
+  isDefaultFolder: (id: string) => boolean;
+  onSelect: (id: string) => void;
+  onDelete: (id: string) => void;
+}) {
+  const isActive = folder.id === activeFolderId;
+  const subs = subFolders(folder.id);
+  const count = allDocsForCount.filter((d) => d.folder_id === folder.id).length;
+
+  return (
+    <div>
+      <div
+        className={`group flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors text-sm ${
+          isActive ? 'bg-brand-primary/10 text-brand-primary font-semibold' : 'text-gray-600 hover:bg-gray-100'
+        }`}
+        onClick={() => onSelect(folder.id)}
+      >
+        {isActive ? <FolderOpen className="w-4 h-4 shrink-0" /> : <Folder className="w-4 h-4 shrink-0" />}
+        <span className="flex-1 truncate">{folder.name}</span>
+        <span className="text-xs text-gray-400">{count}</span>
+        {!isDefaultFolder(folder.id) && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(folder.id); }}
+            className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 transition-all"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+      {subs.length > 0 && (
+        <div className="ml-4 mt-0.5 space-y-0.5">
+          {subs.map((s) => (
+            <FolderItem
+              key={s.id} folder={s} activeFolderId={activeFolderId}
+              allDocsForCount={allDocsForCount} subFolders={subFolders}
+              isDefaultFolder={isDefaultFolder} onSelect={onSelect} onDelete={onDelete}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DocumentsPage() {
   const { data: foldersData } = useFoldersQuery();
   const folders = foldersData?.data ?? [];
 
-  const [activeFolderId, setActiveFolderId] = useState<string>('');
+  const [activeFolderId, setActiveFolderId] = useState('');
   const activeFolderIdResolved = activeFolderId || folders[0]?.id || '';
-
-  // Reset to page 1 when folder changes
-  const handleSetFolder = (id: string) => { setActiveFolderId(id); setPage(1); };
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+
+  const handleSetFolder = (id: string) => { setActiveFolderId(id); setPage(1); };
 
   const { data: docsData } = useDocumentsQuery(activeFolderIdResolved || undefined, page, limit);
   const allDocs = docsData?.data ?? [];
   const totalCount = (docsData as { count?: number })?.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
-  // Fetch ALL docs (no folder filter) just for folder counts
+  // All docs without folder filter — for folder counts only
   const { data: allDocsData } = useDocumentsQuery();
   const allDocsForCount = allDocsData?.data ?? [];
 
@@ -55,6 +105,7 @@ export default function DocumentsPage() {
   const activeFolder = folders.find((f) => f.id === activeFolderIdResolved);
   const rootFolders = folders.filter((f) => f.parent_id === null);
   const subFolders = (parentId: string) => folders.filter((f) => f.parent_id === parentId);
+  const isDefaultFolder = (id: string) => folders.findIndex((f) => f.id === id) < 6;
 
   const folderDocs = allDocs.filter((d) =>
     !search || d.title.toLowerCase().includes(search.toLowerCase())
@@ -67,49 +118,21 @@ export default function DocumentsPage() {
     });
   }
 
-  // Default folders seeded in DB — we identify them by checking if they're the first 6
-  const isDefaultFolder = (id: string) => {
-    const idx = folders.findIndex((f) => f.id === id);
-    return idx < 6;
-  };
-
-  function FolderItem({ folder }: { folder: DocFolder }) {
-    const isActive = folder.id === activeFolderIdResolved;
-    const subs = subFolders(folder.id);
-    const count = allDocsForCount.filter((d) => d.folder_id === folder.id).length;
-
-    return (
-      <div>
-        <div
-          className={`group flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors text-sm ${
-            isActive ? 'bg-brand-primary/10 text-brand-primary font-semibold' : 'text-gray-600 hover:bg-gray-100'
-          }`}
-          onClick={() => handleSetFolder(folder.id)}
-        >
-          {isActive ? <FolderOpen className="w-4 h-4 shrink-0" /> : <Folder className="w-4 h-4 shrink-0" />}
-          <span className="flex-1 truncate">{folder.name}</span>
-          <span className="text-xs text-gray-400">{count}</span>
-          {!isDefaultFolder(folder.id) && (
-            <button
-              onClick={(e) => { e.stopPropagation(); setDeleteFolderId(folder.id); }}
-              className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 transition-all"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-        {subs.length > 0 && (
-          <div className="ml-4 mt-0.5 space-y-0.5">
-            {subs.map((s) => <FolderItem key={s.id} folder={s} />)}
-          </div>
-        )}
-      </div>
-    );
-  }
+  const newFolderInput = (
+    <div className="flex items-center gap-1.5">
+      <input autoFocus value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && handleAddFolder()}
+        placeholder="Folder name…"
+        className="flex-1 text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-primary/30" />
+      <button onClick={handleAddFolder} className="text-green-500 hover:text-green-600"><Check className="w-4 h-4" /></button>
+      <button onClick={() => setShowNewFolder(false)} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
+    </div>
+  );
 
   return (
     <div className="flex flex-col md:flex-row gap-4 md:gap-6 md:h-[calc(100vh-112px)]">
-      {/* Mobile: horizontal scrollable folder pills */}
+
+      {/* Mobile: horizontal folder pills */}
       <div className="md:hidden w-full">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-bold uppercase tracking-widest text-brand-primary">Folders</span>
@@ -120,11 +143,7 @@ export default function DocumentsPage() {
         <AnimatePresence>
           {showNewFolder && (
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden mb-2">
-              <div className="flex items-center gap-1.5">
-                <input autoFocus value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddFolder()} placeholder="Folder name…" className="flex-1 text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-primary/30" />
-                <button onClick={handleAddFolder} className="text-green-500 hover:text-green-600"><Check className="w-4 h-4" /></button>
-                <button onClick={() => setShowNewFolder(false)} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
-              </div>
+              {newFolderInput}
             </motion.div>
           )}
         </AnimatePresence>
@@ -133,9 +152,7 @@ export default function DocumentsPage() {
             const isActive = f.id === activeFolderIdResolved;
             const count = allDocsForCount.filter((d) => d.folder_id === f.id).length;
             return (
-              <button
-                key={f.id}
-                onClick={() => handleSetFolder(f.id)}
+              <button key={f.id} onClick={() => handleSetFolder(f.id)}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors shrink-0 ${
                   isActive ? 'bg-brand-primary text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
                 }`}
@@ -160,40 +177,43 @@ export default function DocumentsPage() {
         <AnimatePresence>
           {showNewFolder && (
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-b border-gray-100">
-              <div className="flex items-center gap-1.5 px-3 py-2">
-                <input autoFocus value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddFolder()} placeholder="Folder name…" className="flex-1 text-xs border border-gray-200 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30" />
-                <button onClick={handleAddFolder} className="text-green-500 hover:text-green-600"><Check className="w-4 h-4" /></button>
-                <button onClick={() => setShowNewFolder(false)} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
-              </div>
+              <div className="px-3 py-2">{newFolderInput}</div>
             </motion.div>
           )}
         </AnimatePresence>
         <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
-          {rootFolders.map((f) => <FolderItem key={f.id} folder={f} />)}
+          {rootFolders.map((f) => (
+            <FolderItem key={f.id} folder={f} activeFolderId={activeFolderIdResolved}
+              allDocsForCount={allDocsForCount} subFolders={subFolders}
+              isDefaultFolder={isDefaultFolder} onSelect={handleSetFolder}
+              onDelete={(id) => setDeleteFolderId(id)}
+            />
+          ))}
         </nav>
       </aside>
 
       {/* Document list */}
       <div className="flex-1 flex flex-col min-w-0 space-y-4">
+
+        {/* Header */}
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 text-sm text-gray-500 min-w-0">
-            <span className="font-bold text-brand-primary truncate">{activeFolder?.name ?? '…'}</span>
-            <span className="text-gray-300 shrink-0">/</span>
-            <span className="shrink-0 text-xs">{totalCount}</span>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="font-bold text-brand-primary truncate text-sm">{activeFolder?.name ?? '…'}</span>
+            <span className="text-gray-300 shrink-0 text-xs">/</span>
+            <span className="shrink-0 text-xs text-gray-500">{totalCount}</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {/* Per-page selector — just the number, no label on mobile */}
             <select
               value={limit}
               onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
-              className="text-xs font-semibold border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30 bg-white"
+              className="text-xs font-semibold border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none bg-white"
               title="Documents per page"
             >
               {[5, 10, 20, 50].map((n) => <option key={n} value={n}>{n}</option>)}
             </select>
             <Link
               to={`/admin/documents/new?folder=${activeFolderIdResolved}`}
-              className="flex items-center gap-1.5 bg-brand-gradient text-white text-xs font-semibold px-3 py-2 rounded-lg hover:opacity-90 transition-opacity"
+              className="flex items-center gap-1.5 bg-brand-gradient text-white text-xs font-semibold px-3 py-2 rounded-lg hover:opacity-90 transition-opacity whitespace-nowrap"
             >
               <FilePlus className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">New Document</span>
@@ -201,18 +221,15 @@ export default function DocumentsPage() {
             </Link>
           </div>
         </div>
-        </div>
 
+        {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search documents…"
-            className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50"
-          />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search documents…"
+            className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50" />
         </div>
 
+        {/* List */}
         <div className="flex-1 overflow-y-auto">
           {folderDocs.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 text-gray-400">
@@ -225,41 +242,35 @@ export default function DocumentsPage() {
           ) : (
             <div className="space-y-2">
               {folderDocs.map((doc) => (
-                <motion.div
-                  key={doc.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-xl border border-gray-100 shadow-card px-5 py-4 flex items-center gap-4 hover:border-brand-primary/20 transition-colors"
+                <motion.div key={doc.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-xl border border-gray-100 shadow-card px-4 py-3 flex items-center gap-3 hover:border-brand-primary/20 transition-colors"
                 >
-                  <div className="w-9 h-9 rounded-lg bg-brand-primary/10 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center shrink-0">
                     <FileText className="w-4 h-4 text-brand-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-800 truncate">{doc.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{doc.type} · {doc.document_date ? new Date(doc.document_date).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' }) : formatDate(doc.updated_at)}</p>
+                    <p className="font-semibold text-gray-800 truncate text-sm">{doc.title}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {doc.type} · {doc.document_date ? formatDate(doc.document_date) : formatDate(doc.updated_at)}
+                    </p>
                   </div>
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full shrink-0 ${STATUS_STYLE[doc.status]}`}>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${STATUS_STYLE[doc.status]}`}>
                     {doc.status}
                   </span>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      onClick={() => setPreviewDoc(doc)}
-                      className="flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-brand-primary border border-gray-200 px-2 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button onClick={() => setPreviewDoc(doc)}
+                      className="p-1.5 text-gray-400 hover:text-brand-primary hover:bg-gray-50 rounded-lg transition-colors"
                       title="Preview"
                     >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Preview</span>
+                      <Eye className="w-4 h-4" />
                     </button>
-                    <Link
-                      to={`/admin/documents/${doc.id}/edit`}
-                      className="flex items-center gap-1 text-xs font-semibold text-brand-primary border border-brand-primary/20 px-2 py-1.5 rounded-lg hover:bg-brand-primary/5 transition-colors"
+                    <Link to={`/admin/documents/${doc.id}/edit`}
+                      className="text-xs font-semibold text-brand-primary border border-brand-primary/20 px-2 py-1.5 rounded-lg hover:bg-brand-primary/5 transition-colors"
                       title="Edit"
                     >
-                      <span className="hidden sm:inline">Edit</span>
-                      <span className="sm:hidden text-xs">Edit</span>
+                      Edit
                     </Link>
-                    <button
-                      onClick={() => setDeleteDocId(doc.id)}
+                    <button onClick={() => setDeleteDocId(doc.id)}
                       className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete"
                     >
@@ -276,38 +287,32 @@ export default function DocumentsPage() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between pt-2 border-t border-gray-100">
             <p className="text-xs text-gray-400">
-              Showing {((page - 1) * limit) + 1}–{Math.min(page * limit, totalCount)} of {totalCount}
+              {((page - 1) * limit) + 1}–{Math.min(page * limit, totalCount)} of {totalCount}
             </p>
             <div className="flex items-center gap-1">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
+              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
+                className="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40">
                 Prev
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`w-8 h-8 text-xs font-semibold rounded-lg transition-colors ${
+                <button key={p} onClick={() => setPage(p)}
+                  className={`w-7 h-7 text-xs font-semibold rounded-lg transition-colors ${
                     p === page ? 'bg-brand-primary text-white' : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
                   }`}
                 >
                   {p}
                 </button>
               ))}
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
+              <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                className="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40">
                 Next
               </button>
             </div>
           </div>
         )}
       </div>
+
+      {/* Delete document modal */}
       <AnimatePresence>
         {deleteDocId && (
           <>
@@ -321,12 +326,7 @@ export default function DocumentsPage() {
                 <p className="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
                 <div className="flex gap-3">
                   <button onClick={() => setDeleteDocId(null)} className="flex-1 py-2.5 text-sm font-semibold rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50">Cancel</button>
-                  <button
-                    onClick={() => { deleteDocument.mutate(deleteDocId); setDeleteDocId(null); }}
-                    className="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-red-500 text-white hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
+                  <button onClick={() => { deleteDocument.mutate(deleteDocId); setDeleteDocId(null); }} className="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-red-500 text-white hover:bg-red-600">Delete</button>
                 </div>
               </div>
             </motion.div>
@@ -364,6 +364,7 @@ export default function DocumentsPage() {
           </>
         )}
       </AnimatePresence>
+
       {/* Preview modal */}
       <AnimatePresence>
         {previewDoc && (
@@ -377,10 +378,8 @@ export default function DocumentsPage() {
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[previewDoc.status]}`}>{previewDoc.status}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Link
-                    to={`/admin/documents/${previewDoc.id}/edit`}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-brand-primary border border-brand-primary/20 px-3 py-1.5 rounded-lg hover:bg-brand-primary/5"
-                  >
+                  <Link to={`/admin/documents/${previewDoc.id}/edit`}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-brand-primary border border-brand-primary/20 px-3 py-1.5 rounded-lg hover:bg-brand-primary/5">
                     Edit
                   </Link>
                   <button onClick={() => setPreviewDoc(null)} className="text-gray-400 hover:text-gray-700">
@@ -391,13 +390,10 @@ export default function DocumentsPage() {
               <div className="flex-1 overflow-y-auto py-8 px-4">
                 <div className="bg-white shadow-2xl mx-auto p-12" style={{ width: '794px', minWidth: '794px', fontFamily: 'Georgia, serif' }}>
                   {previewDoc.watermark && (
-                    <div style={{ position: 'relative' }}>
-                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
-                        <span style={{ fontSize: '96px', fontWeight: 900, color: 'rgba(11,40,84,0.06)', transform: 'rotate(-35deg)', whiteSpace: 'nowrap', userSelect: 'none', letterSpacing: '0.1em' }}>DRAFT</span>
-                      </div>
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+                      <span style={{ fontSize: '96px', fontWeight: 900, color: 'rgba(11,40,84,0.06)', transform: 'rotate(-35deg)', whiteSpace: 'nowrap', userSelect: 'none', letterSpacing: '0.1em' }}>DRAFT</span>
                     </div>
                   )}
-                  {/* Header */}
                   <div style={{ borderBottom: '2px solid #C79527', paddingBottom: '12px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <img src={logo} alt="ADQS" style={{ height: '40px', width: 'auto', borderRadius: '4px' }} />
@@ -411,11 +407,8 @@ export default function DocumentsPage() {
                       <div style={{ fontSize: '11px', color: '#888' }}>Ref: ADQS-{previewDoc.id.slice(-6)}</div>
                     </div>
                   </div>
-                  {/* Title */}
                   <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#0B2854', margin: '0 0 20px 0' }}>{previewDoc.title}</h1>
-                  {/* Body */}
                   <div style={{ fontSize: '13px', lineHeight: '1.8', color: '#333' }} className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: previewDoc.body }} />
-                  {/* Footer */}
                   <div style={{ borderTop: '1px solid #e5e7eb', marginTop: '40px', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#aaa' }}>
                     <span>Adequate Strategies (Pty) Ltd · 252 Cole Road, Shere, Pretoria · info@adqs.co.za</span>
                     <span>Confidential</span>
