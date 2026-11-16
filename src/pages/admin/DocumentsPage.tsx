@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FolderOpen, Folder, PlusCircle, FilePlus, Trash2,
-  FileText, ChevronRight, Search, X, Check, Eye, Download,
+  FileText, ChevronRight, Search, X, Check, Eye,
 } from 'lucide-react';
 import { useFoldersQuery, useDocumentsQuery } from '@/features/documents/queries';
 import { useCreateFolder, useDeleteFolder, useDeleteDocument } from '@/features/documents/mutations';
