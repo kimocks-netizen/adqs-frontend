@@ -166,45 +166,79 @@ export default function AdminServicesPage() {
               ) : (
                 <>
                   {/* Row */}
-                  <div className="flex items-center gap-4 px-5 py-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold text-gray-800 truncate">{service.title}</p>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${service.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
-                          {service.is_active ? 'Active' : 'Hidden'}
-                        </span>
+                  <div className="px-5 py-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-800">{service.title}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{service.summary}</p>
                       </div>
-                      <p className="text-xs text-gray-400 mt-0.5 truncate">{service.summary}</p>
+                      {/* Desktop-only icons */}
+                      <div className="hidden sm:flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={() => setExpandedId(expandedId === service.id ? null : service.id)}
+                          className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors"
+                          title="View areas"
+                        >
+                          {expandedId === service.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        </button>
+                        <button
+                          onClick={() => handleToggleActive(service)}
+                          className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors"
+                          title={service.is_active ? 'Hide service' : 'Show service'}
+                        >
+                          {service.is_active ? <ToggleRight className="w-4 h-4 text-green-500" /> : <ToggleLeft className="w-4 h-4" />}
+                        </button>
+                        <button
+                          onClick={() => { setEditId(service.id); setShowAdd(false); }}
+                          className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors"
+                          title="Edit"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteId(service.id)}
+                          className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        onClick={() => setExpandedId(expandedId === service.id ? null : service.id)}
-                        className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors"
-                        title="View areas"
-                      >
-                        {expandedId === service.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </button>
-                      <button
-                        onClick={() => handleToggleActive(service)}
-                        className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors"
-                        title={service.is_active ? 'Hide service' : 'Show service'}
-                      >
-                        {service.is_active ? <ToggleRight className="w-4 h-4 text-green-500" /> : <ToggleLeft className="w-4 h-4" />}
-                      </button>
-                      <button
-                        onClick={() => { setEditId(service.id); setShowAdd(false); }}
-                        className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors"
-                        title="Edit"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setDeleteId(service.id)}
-                        className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                    {/* Badge + mobile actions on second line */}
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${service.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
+                        {service.is_active ? 'Active' : 'Hidden'}
+                      </span>
+                      <div className="sm:hidden flex items-center gap-1 ml-auto">
+                        <button
+                          onClick={() => setExpandedId(expandedId === service.id ? null : service.id)}
+                          className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors"
+                          title="View areas"
+                        >
+                          {expandedId === service.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        </button>
+                        <button
+                          onClick={() => handleToggleActive(service)}
+                          className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors"
+                          title={service.is_active ? 'Hide service' : 'Show service'}
+                        >
+                          {service.is_active ? <ToggleRight className="w-4 h-4 text-green-500" /> : <ToggleLeft className="w-4 h-4" />}
+                        </button>
+                        <button
+                          onClick={() => { setEditId(service.id); setShowAdd(false); }}
+                          className="p-1.5 text-gray-400 hover:text-brand-primary rounded-lg hover:bg-gray-50 transition-colors"
+                          title="Edit"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteId(service.id)}
+                          className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
 

@@ -243,36 +243,37 @@ export default function DocumentsPage() {
             <div className="space-y-2">
               {folderDocs.map((doc) => (
                 <motion.div key={doc.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-xl border border-gray-100 shadow-card px-4 py-3 flex items-center gap-3 hover:border-brand-primary/20 transition-colors"
+                  className="bg-white rounded-xl border border-gray-100 shadow-card px-4 py-3 hover:border-brand-primary/20 transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center shrink-0">
-                    <FileText className="w-4 h-4 text-brand-primary" />
+                  {/* Top row: icon + title + status */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center shrink-0">
+                      <FileText className="w-4 h-4 text-brand-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-800 truncate text-sm">{doc.title}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {doc.type} · {doc.document_date ? formatDate(doc.document_date) : formatDate(doc.updated_at)}
+                      </p>
+                    </div>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${STATUS_STYLE[doc.status]}`}>
+                      {doc.status}
+                    </span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-800 truncate text-sm">{doc.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {doc.type} · {doc.document_date ? formatDate(doc.document_date) : formatDate(doc.updated_at)}
-                    </p>
-                  </div>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${STATUS_STYLE[doc.status]}`}>
-                    {doc.status}
-                  </span>
-                  <div className="flex items-center gap-1 shrink-0">
+                  {/* Action row */}
+                  <div className="flex items-center gap-2 mt-2.5 pt-2.5 border-t border-gray-100">
                     <button onClick={() => setPreviewDoc(doc)}
-                      className="p-1.5 text-gray-400 hover:text-brand-primary hover:bg-gray-50 rounded-lg transition-colors"
-                      title="Preview"
+                      className="flex items-center gap-1 text-xs font-semibold text-gray-500 border border-gray-200 px-2.5 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-3.5 h-3.5" /> Preview
                     </button>
                     <Link to={`/admin/documents/${doc.id}/edit`}
-                      className="text-xs font-semibold text-brand-primary border border-brand-primary/20 px-2 py-1.5 rounded-lg hover:bg-brand-primary/5 transition-colors"
-                      title="Edit"
+                      className="flex items-center gap-1 text-xs font-semibold text-brand-primary border border-brand-primary/20 px-2.5 py-1.5 rounded-lg hover:bg-brand-primary/5 transition-colors"
                     >
                       Edit
                     </Link>
                     <button onClick={() => setDeleteDocId(doc.id)}
-                      className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete"
+                      className="ml-auto p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

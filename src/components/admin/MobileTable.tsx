@@ -22,13 +22,11 @@ export function MobileTable({ rows, empty = 'No records found.' }: { rows: Mobil
     <div className="md:hidden space-y-2">
       {rows.map((row) => (
         <div key={row.id} className="bg-white rounded-xl border border-gray-100 shadow-card px-4 py-3 space-y-2">
-          {/* Top row: primary + badge */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-gray-800 leading-tight truncate">{row.primary}</p>
-              {row.secondary && <p className="mt-0.5 text-xs text-gray-400 truncate">{row.secondary}</p>}
-            </div>
-            {row.badge && <div className="shrink-0">{row.badge}</div>}
+          {/* Title + badge stacked */}
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-800 leading-tight">{row.primary}</p>
+            {row.secondary && <p className="mt-0.5 text-xs text-gray-400">{row.secondary}</p>}
+            {row.badge && <div className="mt-1.5">{row.badge}</div>}
           </div>
 
           {/* Fields grid */}
