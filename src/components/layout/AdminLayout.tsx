@@ -122,19 +122,23 @@ export default function AdminLayout() {
               to={to}
               end={end}
               className={({ isActive }) =>
-                `flex items-center justify-center gap-1.5 flex-1 h-full text-xs font-semibold transition-colors ${
-                  isActive ? 'text-brand-secondary' : 'text-gray-400 hover:text-gray-600'
+                `flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+                  isActive ? 'text-brand-primary' : 'text-gray-400 hover:text-gray-600'
                 }`
               }
             >
-              {({ isActive }) => (
-                <>
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span className={`text-[11px] font-semibold ${isActive ? 'text-brand-secondary' : 'text-gray-400'}`}>
-                    {label}
-                  </span>
-                </>
-              )}
+              {({ isActive }) =>
+                label === 'Home' ? (
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-brand-primary' : 'text-brand-primary/40'}`} />
+                ) : (
+                  <>
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className={`text-[10px] font-semibold mt-0.5 ${isActive ? 'text-brand-primary' : 'text-gray-400'}`}>
+                      {label}
+                    </span>
+                  </>
+                )
+              }
             </NavLink>
           ))}
         </div>

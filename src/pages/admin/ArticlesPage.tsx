@@ -155,7 +155,7 @@ export default function ArticlesPage() {
               </span>
             ),
             fields: [
-              { label: 'Date', value: formatDate(article.published_at) },
+              { label: 'Date', value: formatDate(article.published_at), align: 'right' as const },
             ],
             actions: (
               <>

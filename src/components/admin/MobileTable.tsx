@@ -5,7 +5,7 @@ export interface MobileRow {
   primary: ReactNode;
   secondary?: ReactNode;
   badge?: ReactNode;
-  fields?: { label: string; value: ReactNode }[];
+  fields?: { label: string; value: ReactNode; align?: 'left' | 'right' }[];
   actions?: ReactNode;
 }
 
@@ -33,7 +33,7 @@ export function MobileTable({ rows, empty = 'No records found.' }: { rows: Mobil
           {row.fields && row.fields.length > 0 && (
             <div className={`grid gap-x-3 gap-y-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs grid-cols-${Math.min(row.fields.length, 3)}`}>
               {row.fields.map((f) => (
-                <div key={f.label}>
+                <div key={f.label} className={f.align === 'right' ? 'text-right' : ''}>
                   <p className="text-gray-400">{f.label}</p>
                   <p className="font-medium text-gray-700">{f.value}</p>
                 </div>
