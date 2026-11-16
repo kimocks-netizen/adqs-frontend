@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Save, Eye, Upload, X, Check, ZoomIn, ZoomOut } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import type { Area } from 'react-easy-crop';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { articlesApi } from '@/features/articles/api';
+import { useCreateArticle, useUpdateArticle } from '@/features/articles/mutations';
+import { useAdminArticlesQuery } from '@/features/articles/queries';
 import { ROUTES } from '@/routes/routes';
 import type { Article } from '@/types';
 import RichEditor from '@/components/admin/RichEditor';
@@ -48,37 +48,13 @@ const EMPTY: Omit<Article, 'id'> = {
 export default function ArticleEditorPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const qc = useQueryClient();
   const isEdit = !!id;
 
-  const { data: existingData } = useQuery({
-    queryKey: ['admin-article', id],
-    queryFn: () => articlesApi.getAll().then(r => ({ data: r.data.find(a => a.id === id) })),
-    enabled: isEdit,
-    staleTime: 0,
-  });
+  const { data: adminData } = useAdminArticlesQuery();
+  const existing = isEdit ? adminData?.data?.find((a) => a.id === id) : undefined;
 
-  const existing = existingData?.data;
-
-  const createMutation = useMutation({
-    mutationFn: (data: Partial<Article>) => articlesApi.create(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin-articles'] });
-      qc.invalidateQueries({ queryKey: ['articles'] });
-      setSaved(true);
-      setTimeout(() => navigate(ROUTES.ADMIN_ARTICLES), 800);
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: (data: Partial<Article>) => articlesApi.update(id!, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin-articles'] });
-      qc.invalidateQueries({ queryKey: ['articles'] });
-      setSaved(true);
-      setTimeout(() => navigate(ROUTES.ADMIN_ARTICLES), 800);
-    },
-  });
+  const createMutation = useCreateArticle();
+  const updateMutation = useUpdateArticle(id ?? '');
 
   const [form, setForm] = useState<Omit<Article, 'id'>>(EMPTY);
   const [slugManual, setSlugManual] = useState(false);
@@ -110,7 +86,10 @@ export default function ArticleEditorPage() {
   function handleSubmit(status: 'draft' | 'published') {
     const payload = { ...form, status };
     if (status === 'published' && !isEdit) payload.published_at = new Date().toISOString();
-    isEdit ? updateMutation.mutate(payload) : createMutation.mutate(payload);
+    const onSuccess = () => { setSaved(true); setTimeout(() => navigate(ROUTES.ADMIN_ARTICLES), 800); };
+    isEdit
+      ? updateMutation.mutate(payload, { onSuccess })
+      : createMutation.mutate(payload, { onSuccess });
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {

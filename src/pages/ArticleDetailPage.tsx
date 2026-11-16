@@ -1,8 +1,7 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, User, ChevronRight, ArrowLeft, RefreshCw } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { articlesApi } from '@/features/articles/api';
+import { useArticleQuery, useArticlesQuery } from '@/features/articles/queries';
 import { ROUTES } from '@/routes/routes';
 
 const CATEGORIES = [
@@ -17,19 +16,9 @@ function formatDate(iso: string) {
 export default function ArticleDetailPage() {
   const { slug } = useParams<{ slug: string }>();
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['article', slug],
-    queryFn: () => articlesApi.getBySlug(slug!),
-    enabled: !!slug,
-    staleTime: 5 * 60 * 1000,
-    retry: false,
-  });
+  const { data, isLoading, isError } = useArticleQuery(slug!);
 
-  const { data: listData } = useQuery({
-    queryKey: ['articles', 'All', ''],
-    queryFn: () => articlesApi.getPublished(),
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data: listData } = useArticlesQuery();
 
   const article = data?.data;
   const related = (listData?.data ?? [])

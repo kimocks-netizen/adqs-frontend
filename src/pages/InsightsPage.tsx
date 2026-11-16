@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, User, ArrowRight, Search, RefreshCw } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { articlesApi } from '@/features/articles/api';
+import { useArticlesQuery } from '@/features/articles/queries';
 import { ROUTES } from '@/routes/routes';
 
 const CATEGORIES = [
@@ -19,11 +18,7 @@ export default function InsightsPage() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [query, setQuery] = useState('');
 
-  const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['articles', activeCategory, query],
-    queryFn: () => articlesApi.getPublished({ category: activeCategory, search: query }),
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data, isLoading, isError, refetch } = useArticlesQuery({ category: activeCategory, search: query });
 
   const articles = data?.data ?? [];
   const [featured, ...rest] = articles;

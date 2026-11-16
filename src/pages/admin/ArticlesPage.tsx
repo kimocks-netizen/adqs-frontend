@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlusCircle, Pencil, Trash2, Search, FileText, Eye, EyeOff, RefreshCw } from 'lucide-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { articlesApi } from '@/features/articles/api';
+import { useAdminArticlesQuery } from '@/features/articles/queries';
+import { useDeleteArticle, useToggleArticleHidden } from '@/features/articles/mutations';
 import { ROUTES } from '@/routes/routes';
 
 function formatDate(iso: string) {
@@ -11,34 +11,21 @@ function formatDate(iso: string) {
 }
 
 export default function ArticlesPage() {
-  const qc = useQueryClient();
   const [search, setSearch]           = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft' | 'hidden'>('all');
   const [deleteId, setDeleteId]       = useState<string | null>(null);
 
-  const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['admin-articles', filterStatus, search],
-    queryFn: () => articlesApi.getAll({
-      search,
-      status: filterStatus === 'hidden' ? undefined : filterStatus,
-    }),
-    staleTime: 0,
+  const { data, isLoading, isError, refetch } = useAdminArticlesQuery({
+    search,
+    status: filterStatus === 'hidden' ? undefined : filterStatus,
   });
 
   const articles = (data?.data ?? []).filter((a) =>
     filterStatus === 'hidden' ? !!a.hidden : true
   );
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => articlesApi.remove(id),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-articles'] }); setDeleteId(null); },
-  });
-
-  const toggleHiddenMutation = useMutation({
-    mutationFn: ({ id, hidden }: { id: string; hidden: boolean }) =>
-      articlesApi.update(id, { hidden }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-articles'] }),
-  });
+  const deleteMutation    = useDeleteArticle();
+  const toggleHiddenMutation = useToggleArticleHidden();
 
   return (
     <div className="space-y-6 max-w-6xl">
@@ -168,7 +155,7 @@ export default function ArticlesPage() {
                     className="flex-1 py-2.5 text-sm font-semibold rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
                     Cancel
                   </button>
-                  <button onClick={() => deleteMutation.mutate(deleteId!)}
+                  <button onClick={() => deleteMutation.mutate(deleteId!, { onSuccess: () => setDeleteId(null) })}
                     disabled={deleteMutation.isPending}
                     className="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors disabled:opacity-60">
                     {deleteMutation.isPending ? 'Deleting…' : 'Delete'}

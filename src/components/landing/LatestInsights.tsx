@@ -1,8 +1,7 @@
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, User } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { articlesApi } from '@/features/articles/api';
+import { useArticlesQuery } from '@/features/articles/queries';
 import { ROUTES } from '@/routes/routes';
 
 function formatDate(iso: string) {
@@ -10,11 +9,7 @@ function formatDate(iso: string) {
 }
 
 export default function LatestInsights() {
-  const { data } = useQuery({
-    queryKey: ['articles', 'All', '', 1, 3],
-    queryFn: () => articlesApi.getPublished({ limit: 3 }),
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data } = useArticlesQuery({ limit: 3 });
 
   const articles = data?.data ?? [];
 
