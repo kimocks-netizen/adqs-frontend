@@ -145,7 +145,7 @@ export default function ArticleEditorPage() {
   const inputClass = 'w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50';
 
   return (
-    <div className="max-w-4xl space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <button onClick={() => navigate(ROUTES.ADMIN_ARTICLES)} className="text-gray-400 hover:text-brand-primary transition-colors">
@@ -157,7 +157,7 @@ export default function ArticleEditorPage() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_280px] gap-6 items-start">
+      <div className="grid lg:grid-cols-[1fr_300px] gap-6 items-start">
         {/* Main fields */}
         <div className="space-y-5">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-xl shadow-card border border-gray-100 p-6 space-y-5">
