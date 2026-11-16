@@ -149,7 +149,7 @@ export default function DocumentEditorPage() {
     html2pdf().set({
       margin: [15, 15, 15, 15],
       filename: `${title || 'document'}.pdf`,
-      html2canvas: { scale: 2 },
+      html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
     }).from(el).save();
   }
@@ -180,46 +180,17 @@ export default function DocumentEditorPage() {
 
   const inputClass = 'w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/50';
 
-  function DocumentLayout({ forPrint = false }: { forPrint?: boolean }) {
-    return (
-      <div ref={forPrint ? printRef : undefined} className="relative bg-white" style={{ fontFamily: 'Georgia, serif' }}>
-        {watermark && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-            <span style={{ fontSize: '96px', fontWeight: 900, color: 'rgba(11,40,84,0.06)', transform: 'rotate(-35deg)', whiteSpace: 'nowrap', userSelect: 'none', letterSpacing: '0.1em' }}>
-              DRAFT
-            </span>
-          </div>
-        )}
-        <div style={{ position: 'relative', zIndex: 1, borderBottom: '2px solid #C79527', paddingBottom: '12px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src={logo} alt="ADQS" style={{ height: '40px', width: 'auto', borderRadius: '4px' }} />
-            <div>
-              <div style={{ fontWeight: 700, fontSize: '13px', color: '#0B2854' }}>Adequate Strategies (Pty) Ltd</div>
-              <div style={{ fontSize: '11px', color: '#888' }}>Legal Consulting · Shere, Pretoria, Gauteng</div>
-            </div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#C79527', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{type}</div>
-            <div style={{ fontSize: '11px', color: '#888' }}>Ref: ADQS-{Date.now().toString().slice(-6)}</div>
-          </div>
-        </div>
-        {title && (
-          <div style={{ position: 'relative', zIndex: 1, marginBottom: '20px' }}>
-            <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#0B2854', margin: 0 }}>{title}</h1>
-          </div>
-        )}
-        <div
-          style={{ position: 'relative', zIndex: 1, fontSize: '13px', lineHeight: '1.8', color: '#333' }}
-          className="prose prose-sm max-w-none"
-          dangerouslySetInnerHTML={{ __html: body }}
-        />
-        <div style={{ position: 'relative', zIndex: 1, borderTop: '1px solid #e5e7eb', marginTop: '40px', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#aaa' }}>
-          <span>Adequate Strategies (Pty) Ltd · 252 Cole Road, Shere, Pretoria · info@adqs.co.za</span>
-          <span>Confidential</span>
-        </div>
-      </div>
-    );
-  }
+  const docHeaderStyle: React.CSSProperties = {
+    position: 'relative', zIndex: 1, borderBottom: '2px solid #C79527',
+    paddingBottom: '12px', marginBottom: '24px',
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+  };
+
+  const docFooterStyle: React.CSSProperties = {
+    position: 'relative', zIndex: 1, borderTop: '1px solid #e5e7eb',
+    marginTop: '40px', paddingTop: '10px',
+    display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#aaa',
+  };
 
   const isSaving = createDocument.isPending || updateDocument.isPending;
 
@@ -324,10 +295,31 @@ export default function DocumentEditorPage() {
         </motion.div>
       </div>
 
-      {/* Hidden print target */}
-      <div className="hidden">
-        <div ref={printRef} className="p-8 bg-white" style={{ width: '794px' }}>
-          <DocumentLayout forPrint />
+      {/* Off-screen print target — always in DOM so printRef is always valid */}
+      <div style={{ position: 'fixed', left: '-9999px', top: 0, width: '794px', background: 'white', fontFamily: 'Georgia, serif', padding: '60px' }} ref={printRef}>
+        {watermark && (
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+            <span style={{ fontSize: '96px', fontWeight: 900, color: 'rgba(11,40,84,0.06)', transform: 'rotate(-35deg)', whiteSpace: 'nowrap', userSelect: 'none', letterSpacing: '0.1em' }}>DRAFT</span>
+          </div>
+        )}
+        <div style={docHeaderStyle}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img src={logo} alt="ADQS" style={{ height: '40px', width: 'auto', borderRadius: '4px' }} />
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '13px', color: '#0B2854' }}>Adequate Strategies (Pty) Ltd</div>
+              <div style={{ fontSize: '11px', color: '#888' }}>Legal Consulting · Shere, Pretoria, Gauteng</div>
+            </div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#C79527', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{type}</div>
+            <div style={{ fontSize: '11px', color: '#888' }}>Ref: ADQS-{Date.now().toString().slice(-6)}</div>
+          </div>
+        </div>
+        {title && <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#0B2854', margin: '0 0 20px', position: 'relative', zIndex: 1 }}>{title}</h1>}
+        <div style={{ position: 'relative', zIndex: 1, fontSize: '13px', lineHeight: '1.8', color: '#333' }} dangerouslySetInnerHTML={{ __html: body }} />
+        <div style={docFooterStyle}>
+          <span>Adequate Strategies (Pty) Ltd · 252 Cole Road, Shere, Pretoria · info@adqs.co.za</span>
+          <span>Confidential</span>
         </div>
       </div>
 
@@ -352,9 +344,32 @@ export default function DocumentEditorPage() {
               </div>
             </div>
             <div className="flex-1 overflow-y-auto py-8 px-4">
-              <div className="bg-white shadow-2xl mx-auto p-12" style={{ width: '794px', minWidth: '794px' }}>
-                <DocumentLayout />
-              </div>
+                <div className="bg-white shadow-2xl mx-auto p-12" style={{ width: '794px', minWidth: '794px', fontFamily: 'Georgia, serif' }}>
+                  {watermark && (
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+                      <span style={{ fontSize: '96px', fontWeight: 900, color: 'rgba(11,40,84,0.06)', transform: 'rotate(-35deg)', whiteSpace: 'nowrap', userSelect: 'none', letterSpacing: '0.1em' }}>DRAFT</span>
+                    </div>
+                  )}
+                  <div style={docHeaderStyle}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <img src={logo} alt="ADQS" style={{ height: '40px', width: 'auto', borderRadius: '4px' }} />
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: '13px', color: '#0B2854' }}>Adequate Strategies (Pty) Ltd</div>
+                        <div style={{ fontSize: '11px', color: '#888' }}>Legal Consulting · Shere, Pretoria, Gauteng</div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: '#C79527', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{type}</div>
+                      <div style={{ fontSize: '11px', color: '#888' }}>Ref: ADQS-{Date.now().toString().slice(-6)}</div>
+                    </div>
+                  </div>
+                  {title && <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#0B2854', margin: '0 0 20px', position: 'relative', zIndex: 1 }}>{title}</h1>}
+                  <div style={{ position: 'relative', zIndex: 1, fontSize: '13px', lineHeight: '1.8', color: '#333' }} className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: body }} />
+                  <div style={docFooterStyle}>
+                    <span>Adequate Strategies (Pty) Ltd · 252 Cole Road, Shere, Pretoria · info@adqs.co.za</span>
+                    <span>Confidential</span>
+                  </div>
+                </div>
             </div>
           </div>
         </>
