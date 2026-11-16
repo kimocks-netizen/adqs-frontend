@@ -179,12 +179,20 @@ export default function ArticleEditorPage() {
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-2">Body *</label>
-              <RichEditor
-                value={form.body}
-                onChange={(html) => setForm((prev) => ({ ...prev, body: html }))}
-                placeholder="Write the full article body here…"
-                minHeight="400px"
-              />
+              {isEdit && !form.body ? (
+                <div className="flex items-center justify-center h-48 border border-gray-200 rounded-lg text-gray-400 text-sm">
+                  <span className="w-4 h-4 border-2 border-gray-300 border-t-brand-primary rounded-full animate-spin mr-2" />
+                  Loading content…
+                </div>
+              ) : (
+                <RichEditor
+                  key={id ?? 'new'}
+                  value={form.body}
+                  onChange={(html) => setForm((prev) => ({ ...prev, body: html }))}
+                  placeholder="Write the full article body here…"
+                  minHeight="400px"
+                />
+              )}
             </div>
           </motion.div>
 
