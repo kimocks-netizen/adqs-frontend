@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Save, Eye, Upload, X, Check, ZoomIn, ZoomOut, UserPlus } from 'lucide-react';
+import { ArrowLeft, Save, Eye, Upload, X, Check, ZoomIn, ZoomOut, UserPlus, CalendarDays } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import type { Area } from 'react-easy-crop';
 import { useCreateArticle, useUpdateArticle } from '@/features/articles/mutations';
@@ -339,12 +339,16 @@ export default function ArticleEditorPage() {
           <div className="bg-white rounded-xl shadow-card border border-gray-100 p-5 space-y-3">
             <h2 className="text-sm font-bold text-brand-primary uppercase tracking-widest">Publish Date</h2>
             <p className="text-xs text-gray-400">Set a past date to backdate the article.</p>
-            <input
-              type="datetime-local"
-              value={form.published_at ? form.published_at.slice(0, 16) : ''}
-              onChange={(e) => setForm((prev) => ({ ...prev, published_at: e.target.value ? new Date(e.target.value).toISOString() : prev.published_at }))}
-              className={inputClass}
-            />
+            <div className="relative">
+              <input
+                type="datetime-local"
+                value={form.published_at ? form.published_at.slice(0, 16) : ''}
+                onChange={(e) => setForm((prev) => ({ ...prev, published_at: e.target.value ? new Date(e.target.value).toISOString() : prev.published_at }))}
+                className={inputClass + ' pr-10'}
+                style={{ colorScheme: 'light' }}
+              />
+              <CalendarDays className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            </div>
           </div>
         </motion.div>
       </div>

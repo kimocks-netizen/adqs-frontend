@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, Download, Eye, X, Droplets } from 'lucide-react';
+import { ArrowLeft, Save, Download, Eye, X, Droplets, CalendarDays } from 'lucide-react';
 import { useDocumentQuery, useFoldersQuery } from '@/features/documents/queries';
 import { useCreateDocument, useUpdateDocument } from '@/features/documents/mutations';
 import RichEditor from '@/components/admin/RichEditor';
@@ -265,12 +265,16 @@ export default function DocumentEditorPage() {
           <div className="bg-white rounded-xl shadow-card border border-gray-100 p-5 space-y-3">
             <h2 className="text-sm font-bold text-brand-primary uppercase tracking-widest">Document Date</h2>
             <p className="text-xs text-gray-400">Date shown on the document. Can be backdated.</p>
-            <input
-              type="date"
-              value={documentDate}
-              onChange={(e) => setDocumentDate(e.target.value)}
-              className={inputClass}
-            />
+            <div className="relative">
+              <input
+                type="date"
+                value={documentDate}
+                onChange={(e) => setDocumentDate(e.target.value)}
+                className={inputClass + ' pr-10'}
+                style={{ colorScheme: 'light' }}
+              />
+              <CalendarDays className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            </div>
           </div>
 
           {/* Watermark */}
