@@ -388,9 +388,9 @@ export default function DocumentsPage() {
                   </button>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto py-4 px-3 md:py-8 md:px-4">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3 md:py-8 md:px-4">
                 {/* Mobile: fluid card layout */}
-                <div className="md:hidden bg-white rounded-xl shadow-lg mx-auto p-5 max-w-full" style={{ fontFamily: 'Georgia, serif' }}>
+                <div className="md:hidden bg-white rounded-xl shadow-lg mx-auto p-5 w-full overflow-x-hidden" style={{ fontFamily: 'Georgia, serif' }}>
                   {previewDoc.watermark && (
                     <div style={{ position: 'relative', overflow: 'hidden' }}>
                       <span style={{ position: 'absolute', fontSize: '64px', fontWeight: 900, color: 'rgba(11,40,84,0.06)', transform: 'rotate(-35deg)', whiteSpace: 'nowrap', userSelect: 'none', top: '10px', left: '-10px' }}>DRAFT</span>
@@ -411,7 +411,7 @@ export default function DocumentsPage() {
                     </div>
                   </div>
                   <h1 style={{ fontSize: '15px', fontWeight: 700, color: '#0B2854', margin: '0 0 14px 0' }}>{previewDoc.title}</h1>
-                  <div style={{ fontSize: '12px', lineHeight: '1.8', color: '#333' }} className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: previewDoc.body }} />
+                  <div style={{ fontSize: '12px', lineHeight: '1.8', color: '#333', overflowX: 'hidden', wordBreak: 'break-word' }} className="prose prose-sm max-w-none [&_table]:w-full [&_table]:table-fixed [&_img]:max-w-full [&_pre]:whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: previewDoc.body }} />
                   <div style={{ borderTop: '1px solid #e5e7eb', marginTop: '24px', paddingTop: '8px', fontSize: '9px', color: '#aaa' }}>
                     <div>Adequate Strategies (Pty) Ltd · 252 Cole Road, Shere, Pretoria</div>
                     <div>info@adqs.co.za · Confidential</div>
