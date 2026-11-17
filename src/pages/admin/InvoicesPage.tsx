@@ -49,8 +49,14 @@ export default function InvoicesPage() {
   function clearFilters() { setSearch(''); setLiveSearch(''); setFilterType(''); setFilterStatus(''); setPage(1); }
   const hasFilters = search || filterType || filterStatus;
 
-  function openEdit(inv: Invoice) { setEditInvoice(inv); setEditorOpen(true); }
   function openNew()              { setEditInvoice(undefined); setEditorOpen(true); }
+
+  async function openEdit(inv: Invoice) {
+    // always fetch full invoice so invoice_items are populated
+    const res = await invoicesApi.getById(inv.id);
+    setEditInvoice(res.data);
+    setEditorOpen(true);
+  }
 
   async function openPDF(inv: Invoice) {
     // fetch full invoice with items if not already loaded
@@ -190,7 +196,7 @@ export default function InvoicesPage() {
                     <button onClick={() => openPDF(inv)} title="View PDF" className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-400 hover:text-blue-600 transition-colors">
                       <Eye className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => openEdit(inv)} title="Edit" className="p-1.5 rounded-lg hover:bg-brand-primary/10 text-brand-primary/40 hover:text-brand-primary transition-colors">
+                    <button onClick={() => openEdit(inv)} title="Edit" className="p-1.5 rounded-lg hover:bg-brand-primary/10 text-brand-primary/60 hover:text-brand-primary shadow-sm hover:shadow transition-all">
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button onClick={() => setConvertTarget(inv)} title={`Convert to ${inv.document_type === 'invoice' ? 'quote' : 'invoice'}`} className="p-1.5 rounded-lg hover:bg-amber-50 text-amber-400 hover:text-amber-600 transition-colors">
@@ -270,7 +276,7 @@ export default function InvoicesPage() {
               <button onClick={() => openPDF(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold transition-colors hover:bg-blue-100">
                 <Eye className="w-3.5 h-3.5" /> View
               </button>
-              <button onClick={() => openEdit(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-brand-primary/10 text-brand-primary text-xs font-semibold transition-colors hover:bg-brand-primary/20">
+              <button onClick={() => openEdit(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-brand-primary/10 text-brand-primary text-xs font-semibold shadow-sm hover:shadow hover:bg-brand-primary/20 transition-all">
                 <Edit2 className="w-3.5 h-3.5" /> Edit
               </button>
               <button onClick={() => setConvertTarget(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-amber-50 text-amber-600 text-xs font-semibold transition-colors hover:bg-amber-100">
