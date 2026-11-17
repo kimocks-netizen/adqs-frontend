@@ -187,19 +187,19 @@ export default function InvoicesPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
-                    <button onClick={() => openPDF(inv)} title="View PDF" className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-brand-primary transition-colors">
+                    <button onClick={() => openPDF(inv)} title="View PDF" className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-400 hover:text-blue-600 transition-colors">
                       <Eye className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => openEdit(inv)} title="Edit" className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-brand-primary transition-colors">
+                    <button onClick={() => openEdit(inv)} title="Edit" className="p-1.5 rounded-lg hover:bg-brand-primary/10 text-brand-primary/40 hover:text-brand-primary transition-colors">
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => setConvertTarget(inv)} title={`Convert to ${inv.document_type === 'invoice' ? 'quote' : 'invoice'}`} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-amber-600 transition-colors">
+                    <button onClick={() => setConvertTarget(inv)} title={`Convert to ${inv.document_type === 'invoice' ? 'quote' : 'invoice'}`} className="p-1.5 rounded-lg hover:bg-amber-50 text-amber-400 hover:text-amber-600 transition-colors">
                       <ArrowLeftRight className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => handleDownload(inv)} title="Download PDF" className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-brand-primary transition-colors">
+                    <button onClick={() => handleDownload(inv)} title="Download PDF" className="p-1.5 rounded-lg hover:bg-green-50 text-green-400 hover:text-green-600 transition-colors">
                       <Download className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => setDeleteId(inv.id)} title="Delete" className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
+                    <button onClick={() => setDeleteId(inv.id)} title="Delete" className="p-1.5 rounded-lg hover:bg-red-50 text-red-300 hover:text-red-500 transition-colors">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -267,19 +267,19 @@ export default function InvoicesPage() {
 
             {/* Actions */}
             <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100">
-              <button onClick={() => openPDF(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-xs font-semibold text-gray-600 transition-colors">
+              <button onClick={() => openPDF(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold transition-colors hover:bg-blue-100">
                 <Eye className="w-3.5 h-3.5" /> View
               </button>
-              <button onClick={() => openEdit(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-xs font-semibold text-gray-600 transition-colors">
+              <button onClick={() => openEdit(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-brand-primary/10 text-brand-primary text-xs font-semibold transition-colors hover:bg-brand-primary/20">
                 <Edit2 className="w-3.5 h-3.5" /> Edit
               </button>
-              <button onClick={() => setConvertTarget(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-gray-50 hover:bg-amber-50 text-xs font-semibold text-gray-600 hover:text-amber-700 transition-colors">
+              <button onClick={() => setConvertTarget(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-amber-50 text-amber-600 text-xs font-semibold transition-colors hover:bg-amber-100">
                 <ArrowLeftRight className="w-3.5 h-3.5" /> Convert
               </button>
-              <button onClick={() => handleDownload(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-xs font-semibold text-gray-600 transition-colors">
+              <button onClick={() => handleDownload(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-green-50 text-green-600 text-xs font-semibold transition-colors hover:bg-green-100">
                 <Download className="w-3.5 h-3.5" /> PDF
               </button>
-              <button onClick={() => setDeleteId(inv.id)} className="p-1.5 rounded-lg bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
+              <button onClick={() => setDeleteId(inv.id)} className="p-1.5 rounded-lg bg-red-50 text-red-500 transition-colors hover:bg-red-100">
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
