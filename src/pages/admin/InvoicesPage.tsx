@@ -95,7 +95,7 @@ export default function InvoicesPage() {
           <Receipt className="w-5 h-5 text-brand-primary" />
           <h1 className="text-lg font-bold text-brand-primary">Invoices & Quotes</h1>
         </div>
-        <button onClick={openNew} className="flex items-center gap-1.5 bg-brand-primary text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-brand-primary/90">
+        <button onClick={openNew} className="flex items-center gap-1.5 bg-brand-gradient text-white text-xs font-semibold px-3 py-2 rounded-lg hover:opacity-90 transition-opacity">
           <Plus className="w-3.5 h-3.5" /> New Document
         </button>
       </div>
