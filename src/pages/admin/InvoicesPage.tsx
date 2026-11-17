@@ -11,10 +11,10 @@ const fmt     = (n: number) => new Intl.NumberFormat('en-ZA', { style: 'currency
 const fmtDate = (d: string) => new Date(d).toLocaleDateString('en-ZA');
 
 const STATUS_COLOURS: Record<string, string> = {
-  draft:    'bg-gray-100 text-gray-600',
-  sent:     'bg-blue-100 text-blue-700',
-  paid:     'bg-green-100 text-green-700',
-  overdue:  'bg-red-100 text-red-700',
+  draft:    'bg-gray-100 text-gray-700',
+  sent:     'bg-blue-500 text-white',
+  paid:     'bg-green-500 text-white',
+  overdue:  'bg-red-500 text-white',
 };
 
 const TYPE_COLOURS: Record<string, string> = {
@@ -96,7 +96,7 @@ export default function InvoicesPage() {
             <Receipt className="w-5 h-5 text-brand-primary" />
             <h1 className="text-lg font-bold text-brand-primary">Invoices & Quotes</h1>
           </div>
-          <p className="text-xs text-gray-400 mt-0.5 ml-7">Create and manage client invoices and fee quotes</p>
+          <p className="text-sm text-gray-500 mt-0.5 ml-7">Create and manage client invoices and fee quotes</p>
         </div>
         <button onClick={openNew} className="flex items-center gap-1.5 bg-brand-gradient text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
           <Plus className="w-4 h-4" />
@@ -176,9 +176,10 @@ export default function InvoicesPage() {
                     <select
                       value={inv.status}
                       onChange={e => handleStatusChange(inv.id, e.target.value)}
-                      className={`text-xs font-semibold px-2 py-1 rounded-full border-0 cursor-pointer outline-none ${STATUS_COLOURS[inv.status]}`}
+                      className={`text-xs font-semibold px-2 py-1 rounded-full cursor-pointer outline-none appearance-none pr-5 bg-no-repeat bg-[right_6px_center] ${STATUS_COLOURS[inv.status]}`}
+                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23${inv.status === 'draft' ? '374151' : 'ffffff'}' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")` }}
                     >
-                      {['draft','sent','paid','overdue'].map(s => <option key={s} value={s} className="bg-white text-gray-800 capitalize">{s}</option>)}
+                      {['draft','sent','paid','overdue'].map(s => <option key={s} value={s} className="bg-white text-gray-800 capitalize">{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                     </select>
                   ) : (
                     <span className="text-xs text-gray-400">—</span>
@@ -254,9 +255,10 @@ export default function InvoicesPage() {
                 <select
                   value={inv.status}
                   onChange={e => handleStatusChange(inv.id, e.target.value)}
-                  className={`text-xs font-semibold px-2 py-1 rounded-full border-0 cursor-pointer outline-none ${STATUS_COLOURS[inv.status]}`}
+                  className={`text-xs font-semibold px-2 py-1 rounded-full cursor-pointer outline-none appearance-none pr-5 bg-no-repeat bg-[right_6px_center] ${STATUS_COLOURS[inv.status]}`}
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23${inv.status === 'draft' ? '374151' : 'ffffff'}' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")` }}
                 >
-                  {['draft','sent','paid','overdue'].map(s => <option key={s} value={s} className="bg-white text-gray-800 capitalize">{s}</option>)}
+                  {['draft','sent','paid','overdue'].map(s => <option key={s} value={s} className="bg-white text-gray-800 capitalize">{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                 </select>
               ) : (
                 <span className="text-xs text-gray-400">—</span>
