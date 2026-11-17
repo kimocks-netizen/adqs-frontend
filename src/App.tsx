@@ -24,6 +24,7 @@ import EnquiriesPage from '@/pages/admin/EnquiriesPage';
 import DocumentsPage from '@/pages/admin/DocumentsPage';
 import DocumentEditorPage from '@/pages/admin/DocumentEditorPage';
 import AdminServicesPage from '@/pages/admin/AdminServicesPage';
+import InvoicesPage from '@/pages/admin/InvoicesPage';
 
 const router = createBrowserRouter([
   {
@@ -56,6 +57,7 @@ const router = createBrowserRouter([
           { path: '/admin/documents', element: <DocumentsPage /> },
           { path: '/admin/documents/new', element: <DocumentEditorPage /> },
           { path: '/admin/documents/:id/edit', element: <DocumentEditorPage /> },
+          { path: '/admin/invoices', element: <InvoicesPage /> },
         ],
       },
     ],

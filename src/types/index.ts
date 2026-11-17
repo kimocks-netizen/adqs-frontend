@@ -41,3 +41,28 @@ export interface AdminUser {
   name?: string;
   role?: string;
 }
+
+export interface InvoiceItem {
+  id?: string;
+  description: string;
+  amount: number;
+}
+
+export interface Invoice {
+  id: string;
+  invoice_number: string;
+  document_type: 'invoice' | 'quote';
+  customer_name: string;
+  customer_email?: string;
+  customer_phone?: string;
+  matter_reference?: string;
+  invoice_date: string;
+  due_date?: string;
+  subtotal: number;
+  total_amount: number;
+  status: 'draft' | 'sent' | 'paid' | 'overdue';
+  notes?: string;
+  invoice_items?: InvoiceItem[];
+  created_at: string;
+  updated_at: string;
+}
