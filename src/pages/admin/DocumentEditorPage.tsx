@@ -281,8 +281,8 @@ export default function DocumentEditorPage() {
                 <span className="text-sm font-semibold text-gray-700">DRAFT Watermark</span>
               </div>
               <button onClick={() => setWatermark((v) => !v)}
-                className={`w-11 h-6 rounded-full transition-colors relative ${watermark ? 'bg-brand-primary' : 'bg-gray-200'}`}>
-                <span className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${watermark ? 'translate-x-5' : 'translate-x-0'}`} />
+                className={`w-11 h-6 rounded-full transition-colors relative ${watermark ? 'bg-amber-400' : 'bg-gray-200'}`}>
+                <span className={`absolute top-1 left-1 w-4 h-4 rounded-full shadow transition-transform ${watermark ? 'bg-white translate-x-5' : 'bg-white translate-x-0'}`} />
               </button>
             </div>
           </div>
