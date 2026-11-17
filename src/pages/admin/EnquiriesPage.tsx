@@ -168,7 +168,7 @@ export default function EnquiriesPage() {
                     </td>
                     <td className="px-5 py-3.5 text-right">
                       <button onClick={(e) => { e.stopPropagation(); setDeleteId(enq.id); }}
-                        className="text-gray-300 hover:text-red-500 transition-colors">
+                        className="text-red-400 hover:text-red-600 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
