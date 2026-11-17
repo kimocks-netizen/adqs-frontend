@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Receipt, Plus, Eye, Edit2, ArrowLeftRight, Download, Trash2, Search, X } from 'lucide-react';
+import { Receipt, Plus, Eye, Edit2, ArrowLeftRight, Download, Trash2, Search, X, Loader2 } from 'lucide-react';
 import { useInvoicesQuery } from '@/features/invoices/queries';
 import { useUpdateInvoice, useDeleteInvoice, useConvertDocument } from '@/features/invoices/mutations';
 import { invoicesApi } from '@/features/invoices/api';
@@ -43,6 +43,7 @@ export default function InvoicesPage() {
   const [downloadInv,   setDownloadInv]   = useState<Invoice | null>(null);
   const [deleteId,      setDeleteId]      = useState<string | null>(null);
   const [convertTarget, setConvertTarget] = useState<Invoice | null>(null);
+  const [loadingId,     setLoadingId]     = useState<string | null>(null); // tracks which row is fetching
 
   const { data, isLoading } = useInvoicesQuery({ page, limit, search, type: filterType, status: filterStatus });
   const updateMutation  = useUpdateInvoice();
@@ -60,16 +61,18 @@ export default function InvoicesPage() {
   function openNew()              { setEditInvoice(undefined); setEditorOpen(true); }
 
   async function openEdit(inv: Invoice) {
-    // always fetch full invoice so invoice_items are populated
+    setLoadingId(inv.id + '-edit');
     const res = await invoicesApi.getById(inv.id);
+    setLoadingId(null);
     setEditInvoice(res.data);
     setEditorOpen(true);
   }
 
   async function openPDF(inv: Invoice) {
-    // fetch full invoice with items if not already loaded
     if (!inv.invoice_items) {
+      setLoadingId(inv.id + '-view');
       const res = await invoicesApi.getById(inv.id);
+      setLoadingId(null);
       setPdfInvoice(res.data);
     } else {
       setPdfInvoice(inv);
@@ -78,7 +81,9 @@ export default function InvoicesPage() {
 
   async function handleDownload(inv: Invoice) {
     if (!inv.invoice_items) {
+      setLoadingId(inv.id + '-dl');
       const res = await invoicesApi.getById(inv.id);
+      setLoadingId(null);
       setDownloadInv(res.data);
     } else {
       setDownloadInv(inv);
@@ -104,15 +109,16 @@ export default function InvoicesPage() {
     <div className="space-y-4">
 
       {/* Page header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-brand-primary" />
+            <Receipt className="w-5 h-5 text-brand-primary shrink-0" />
             <h1 className="text-lg font-bold text-brand-primary">Invoices & Quotes</h1>
           </div>
-          <p className="text-sm text-gray-500 mt-0.5 ml-7">Create and manage client invoices and fee quotes</p>
+          <p className="text-sm text-gray-500 mt-0.5 ml-7 hidden sm:block">Create and manage client invoices and fee quotes</p>
+          <p className="text-xs text-gray-400 mt-0.5 ml-7 sm:hidden">Invoices &amp; fee quotes</p>
         </div>
-        <button onClick={openNew} className="flex items-center gap-1.5 bg-brand-gradient text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
+        <button onClick={openNew} className="shrink-0 flex items-center gap-1.5 bg-brand-gradient text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">New Document</span>
           <span className="sm:hidden">New</span>
@@ -201,19 +207,19 @@ export default function InvoicesPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
-                    <button onClick={() => openPDF(inv)} title="View PDF" className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-400 hover:text-blue-600 transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
+                    <button onClick={() => openPDF(inv)} title="View PDF" disabled={!!loadingId} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-400 hover:text-blue-600 transition-colors disabled:opacity-40">
+                      {loadingId === inv.id + '-view' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
-                    <button onClick={() => openEdit(inv)} title="Edit" className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
-                      <Edit2 className="w-3.5 h-3.5" />
+                    <button onClick={() => openEdit(inv)} title="Edit" disabled={!!loadingId} className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-40">
+                      {loadingId === inv.id + '-edit' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Edit2 className="w-3.5 h-3.5" />}
                     </button>
-                    <button onClick={() => setConvertTarget(inv)} title={`Convert to ${inv.document_type === 'invoice' ? 'quote' : 'invoice'}`} className="p-1.5 rounded-lg hover:bg-amber-50 text-amber-400 hover:text-amber-600 transition-colors">
+                    <button onClick={() => setConvertTarget(inv)} title={`Convert to ${inv.document_type === 'invoice' ? 'quote' : 'invoice'}`} disabled={!!loadingId} className="p-1.5 rounded-lg hover:bg-amber-50 text-amber-400 hover:text-amber-600 transition-colors disabled:opacity-40">
                       <ArrowLeftRight className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => handleDownload(inv)} title="Download PDF" className="p-1.5 rounded-lg hover:bg-green-50 text-green-400 hover:text-green-600 transition-colors">
-                      <Download className="w-3.5 h-3.5" />
+                    <button onClick={() => handleDownload(inv)} title="Download PDF" disabled={!!loadingId} className="p-1.5 rounded-lg hover:bg-green-50 text-green-400 hover:text-green-600 transition-colors disabled:opacity-40">
+                      {loadingId === inv.id + '-dl' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                     </button>
-                    <button onClick={() => setDeleteId(inv.id)} title="Delete" className="p-1.5 rounded-lg hover:bg-red-50 text-red-300 hover:text-red-500 transition-colors">
+                    <button onClick={() => setDeleteId(inv.id)} title="Delete" disabled={!!loadingId} className="p-1.5 rounded-lg hover:bg-red-50 text-red-300 hover:text-red-500 transition-colors disabled:opacity-40">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -289,23 +295,27 @@ export default function InvoicesPage() {
               )}
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100">
-              <button onClick={() => openPDF(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold transition-colors hover:bg-blue-100">
-                <Eye className="w-3.5 h-3.5" /> View
-              </button>
-              <button onClick={() => openEdit(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold transition-colors">
-                <Edit2 className="w-3.5 h-3.5" /> Edit
-              </button>
-              <button onClick={() => setConvertTarget(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-amber-50 text-amber-600 text-xs font-semibold transition-colors hover:bg-amber-100">
-                <ArrowLeftRight className="w-3.5 h-3.5" /> Convert
-              </button>
-              <button onClick={() => handleDownload(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-green-50 text-green-600 text-xs font-semibold transition-colors hover:bg-green-100">
-                <Download className="w-3.5 h-3.5" /> PDF
-              </button>
-              <button onClick={() => setDeleteId(inv.id)} className="p-1.5 rounded-lg bg-red-50 text-red-500 transition-colors hover:bg-red-100">
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
+            {/* Actions — 2 rows on mobile */}
+            <div className="mt-3 pt-3 border-t border-gray-100 space-y-1.5">
+              <div className="flex items-center gap-1.5">
+                <button onClick={() => openPDF(inv)} disabled={!!loadingId} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold transition-colors hover:bg-blue-100 disabled:opacity-40">
+                  {loadingId === inv.id + '-view' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Eye className="w-3.5 h-3.5" />} View
+                </button>
+                <button onClick={() => openEdit(inv)} disabled={!!loadingId} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold transition-colors disabled:opacity-40">
+                  {loadingId === inv.id + '-edit' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Edit2 className="w-3.5 h-3.5" />} Edit
+                </button>
+                <button onClick={() => handleDownload(inv)} disabled={!!loadingId} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg bg-green-50 text-green-600 text-xs font-semibold transition-colors hover:bg-green-100 disabled:opacity-40">
+                  {loadingId === inv.id + '-dl' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />} PDF
+                </button>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <button onClick={() => setConvertTarget(inv)} disabled={!!loadingId} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg bg-amber-50 text-amber-600 text-xs font-semibold transition-colors hover:bg-amber-100 disabled:opacity-40">
+                  <ArrowLeftRight className="w-3.5 h-3.5" /> Convert to {inv.document_type === 'invoice' ? 'Quote' : 'Invoice'}
+                </button>
+                <button onClick={() => setDeleteId(inv.id)} disabled={!!loadingId} className="px-3 py-2 rounded-lg bg-red-50 text-red-500 transition-colors hover:bg-red-100 disabled:opacity-40">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         ))}

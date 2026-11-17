@@ -3,16 +3,17 @@ import { invoicesApi } from './api';
 
 export const invoiceKeys = {
   all:    ['invoices'] as const,
-  list:   (params: object) => ['invoices', 'list', params] as const,
-  detail: (id: string)     => ['invoices', 'detail', id]   as const,
+  list:   (page: number, limit: number, type: string, status: string, search: string) =>
+    ['invoices', 'list', page, limit, type, status, search] as const,
+  detail: (id: string) => ['invoices', 'detail', id] as const,
 };
 
 export function useInvoicesQuery(params: { page?: number; limit?: number; type?: string; status?: string; search?: string } = {}) {
+  const { page = 1, limit = 10, type = '', status = '', search = '' } = params;
   return useQuery({
-    queryKey: invoiceKeys.list(params),
-    queryFn:  () => invoicesApi.getAll(params),
+    queryKey: invoiceKeys.list(page, limit, type, status, search),
+    queryFn:  () => invoicesApi.getAll({ page, limit, type, status, search }),
     staleTime: 0,
-    refetchOnMount: 'always',
   });
 }
 
