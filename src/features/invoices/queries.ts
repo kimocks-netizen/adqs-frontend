@@ -12,6 +12,7 @@ export function useInvoicesQuery(params: { page?: number; limit?: number; type?:
     queryKey: invoiceKeys.list(params),
     queryFn:  () => invoicesApi.getAll(params),
     staleTime: 0,
+    refetchOnMount: 'always',
   });
 }
 

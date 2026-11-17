@@ -11,10 +11,17 @@ const fmt     = (n: number) => new Intl.NumberFormat('en-ZA', { style: 'currency
 const fmtDate = (d: string) => new Date(d).toLocaleDateString('en-ZA');
 
 const STATUS_COLOURS: Record<string, string> = {
-  draft:    'bg-gray-100 text-gray-700',
-  sent:     'bg-blue-500 text-white',
-  paid:     'bg-green-500 text-white',
-  overdue:  'bg-red-500 text-white',
+  draft:    'bg-gray-100 text-gray-600',
+  sent:     'bg-blue-100 text-blue-800',
+  paid:     'bg-green-100 text-green-800',
+  overdue:  'bg-red-100 text-red-800',
+};
+
+const STATUS_ARROW: Record<string, string> = {
+  draft:   '374151',
+  sent:    '1e40af',
+  paid:    '166534',
+  overdue: '991b1b',
 };
 
 const TYPE_COLOURS: Record<string, string> = {
@@ -184,7 +191,7 @@ export default function InvoicesPage() {
                       value={inv.status}
                       onChange={e => handleStatusChange(inv.id, e.target.value)}
                       className={`text-xs font-semibold px-2 py-1 rounded-full cursor-pointer outline-none appearance-none pr-5 bg-no-repeat bg-[right_6px_center] ${STATUS_COLOURS[inv.status]}`}
-                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23${inv.status === 'draft' ? '374151' : 'ffffff'}' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")` }}
+                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23${STATUS_ARROW[inv.status]}' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")` }}
                     >
                       {['draft','sent','paid','overdue'].map(s => <option key={s} value={s} className="bg-white text-gray-800 capitalize">{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                     </select>
@@ -197,7 +204,7 @@ export default function InvoicesPage() {
                     <button onClick={() => openPDF(inv)} title="View PDF" className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-400 hover:text-blue-600 transition-colors">
                       <Eye className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => openEdit(inv)} title="Edit" className="p-1.5 rounded-lg hover:bg-brand-primary/10 text-brand-primary/60 hover:text-brand-primary shadow-sm hover:shadow transition-all">
+                    <button onClick={() => openEdit(inv)} title="Edit" className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button onClick={() => setConvertTarget(inv)} title={`Convert to ${inv.document_type === 'invoice' ? 'quote' : 'invoice'}`} className="p-1.5 rounded-lg hover:bg-amber-50 text-amber-400 hover:text-amber-600 transition-colors">
@@ -273,7 +280,7 @@ export default function InvoicesPage() {
                   value={inv.status}
                   onChange={e => handleStatusChange(inv.id, e.target.value)}
                   className={`text-xs font-semibold px-2 py-1 rounded-full cursor-pointer outline-none appearance-none pr-5 bg-no-repeat bg-[right_6px_center] ${STATUS_COLOURS[inv.status]}`}
-                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23${inv.status === 'draft' ? '374151' : 'ffffff'}' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")` }}
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23${STATUS_ARROW[inv.status]}' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")` }}
                 >
                   {['draft','sent','paid','overdue'].map(s => <option key={s} value={s} className="bg-white text-gray-800 capitalize">{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                 </select>
@@ -287,7 +294,7 @@ export default function InvoicesPage() {
               <button onClick={() => openPDF(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold transition-colors hover:bg-blue-100">
                 <Eye className="w-3.5 h-3.5" /> View
               </button>
-              <button onClick={() => openEdit(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-brand-primary/10 text-brand-primary text-xs font-semibold shadow-sm hover:shadow hover:bg-brand-primary/20 transition-all">
+              <button onClick={() => openEdit(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold transition-colors">
                 <Edit2 className="w-3.5 h-3.5" /> Edit
               </button>
               <button onClick={() => setConvertTarget(inv)} className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-amber-50 text-amber-600 text-xs font-semibold transition-colors hover:bg-amber-100">

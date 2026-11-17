@@ -23,7 +23,7 @@ const qs = (params: Record<string, string | number | undefined>) => {
 export const invoicesApi = {
   getAll: (params: { page?: number; limit?: number; type?: string; status?: string; search?: string } = {}) =>
     api.get<{ data: Invoice[]; total: number; page: number; limit: number }>(
-      '/api/admin/invoices' + qs({ page: params.page ?? 1, limit: params.limit ?? 20, ...params })
+      '/api/admin/invoices' + qs({ page: params.page ?? 1, limit: params.limit ?? 10, type: params.type, status: params.status, search: params.search })
     ),
 
   getById: (id: string) =>
