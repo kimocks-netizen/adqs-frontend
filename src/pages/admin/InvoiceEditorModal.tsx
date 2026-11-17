@@ -101,7 +101,7 @@ export default function InvoiceEditorModal({ onClose, onSaved, editInvoice }: Pr
                   <button key={t} type="button"
                     onClick={() => setDocType(t)}
                     className={`flex-1 py-2 rounded-lg text-sm font-semibold border transition-colors capitalize ${
-                      docType === t ? 'bg-brand-primary text-white border-brand-primary' : 'bg-white text-gray-600 border-gray-200 hover:border-brand-primary/40'
+                      docType === t ? 'bg-brand-gradient text-white border-transparent' : 'bg-white text-gray-600 border-gray-200 hover:border-brand-primary/40'
                     }`}
                   >{t}</button>
                 ))}
@@ -194,7 +194,7 @@ export default function InvoiceEditorModal({ onClose, onSaved, editInvoice }: Pr
               Cancel
             </button>
             <button type="submit" disabled={isLoading}
-              className="flex-1 py-2.5 rounded-lg bg-brand-primary text-white text-sm font-semibold hover:bg-brand-primary/90 disabled:opacity-50">
+              className="flex-1 py-2.5 rounded-lg bg-brand-gradient text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">
               {isLoading ? 'Saving...' : isEditing ? 'Save Changes' : `Create ${docType === 'quote' ? 'Quote' : 'Invoice'}`}
             </button>
           </div>
