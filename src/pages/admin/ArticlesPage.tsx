@@ -42,7 +42,7 @@ export default function ArticlesPage() {
             <RefreshCw className="w-4 h-4" />
           </button>
           <Link to={ROUTES.ADMIN_ARTICLE_NEW}
-            className="flex items-center gap-2 bg-brand-gradient text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity">
+            className="flex items-center gap-2 bg-brand-gradient text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
             <PlusCircle className="w-4 h-4" /> <span className="hidden sm:inline">New </span>Article
           </Link>
         </div>

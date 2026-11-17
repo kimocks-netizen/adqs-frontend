@@ -213,7 +213,7 @@ export default function DocumentsPage() {
             </select>
             <Link
               to={`/admin/documents/new?folder=${activeFolderIdResolved}`}
-              className="flex items-center gap-1.5 bg-brand-gradient text-white text-xs font-semibold px-3 py-2 rounded-lg hover:opacity-90 transition-opacity whitespace-nowrap"
+              className="flex items-center gap-1.5 bg-brand-gradient text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity whitespace-nowrap"
             >
               <FilePlus className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">New Document</span>

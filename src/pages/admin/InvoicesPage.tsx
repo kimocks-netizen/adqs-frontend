@@ -91,12 +91,17 @@ export default function InvoicesPage() {
 
       {/* Page header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Receipt className="w-5 h-5 text-brand-primary" />
-          <h1 className="text-lg font-bold text-brand-primary">Invoices & Quotes</h1>
+        <div>
+          <div className="flex items-center gap-2">
+            <Receipt className="w-5 h-5 text-brand-primary" />
+            <h1 className="text-lg font-bold text-brand-primary">Invoices & Quotes</h1>
+          </div>
+          <p className="text-xs text-gray-400 mt-0.5 ml-7">Create and manage client invoices and fee quotes</p>
         </div>
-        <button onClick={openNew} className="flex items-center gap-1.5 bg-brand-gradient text-white text-xs font-semibold px-3 py-2 rounded-lg hover:opacity-90 transition-opacity">
-          <Plus className="w-3.5 h-3.5" /> New Document
+        <button onClick={openNew} className="flex items-center gap-1.5 bg-brand-gradient text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">New Document</span>
+          <span className="sm:hidden">New</span>
         </button>
       </div>
 
