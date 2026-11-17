@@ -20,6 +20,9 @@ export const servicesApi = {
     api.get<{ status: string; data: Service }>(`/api/services/${slug}`),
 
   // Admin
+  getAllAdmin: () =>
+    api.get<{ status: string; data: Service[] }>('/api/admin/services'),
+
   create: (data: Partial<Service>) =>
     api.post<{ status: string; data: Service }>('/api/admin/services', data),
 

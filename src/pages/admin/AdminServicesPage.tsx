@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlusCircle, Pencil, Trash2, Check, X, ToggleLeft, ToggleRight, ChevronDown, ChevronUp } from 'lucide-react';
-import { useServicesQuery } from '@/features/services/queries';
+import { useAdminServicesQuery } from '@/features/services/queries';
 import { useCreateService, useUpdateService, useDeleteService } from '@/features/services/mutations';
 import type { Service } from '@/features/services/api';
 
@@ -93,7 +93,7 @@ function ServiceForm({
 }
 
 export default function AdminServicesPage() {
-  const { data, isLoading } = useServicesQuery();
+  const { data, isLoading } = useAdminServicesQuery();
   const services = (data?.data ?? []).slice().sort((a, b) => a.display_order - b.display_order);
 
   const createService = useCreateService();

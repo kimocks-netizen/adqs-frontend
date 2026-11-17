@@ -2,15 +2,24 @@ import { useQuery } from '@tanstack/react-query';
 import { servicesApi } from './api';
 
 export const serviceKeys = {
-  all:    ['services'] as const,
-  detail: (slug: string) => ['services', 'detail', slug] as const,
+  all:       ['services'] as const,
+  adminAll:  ['services', 'admin'] as const,
+  detail:    (slug: string) => ['services', 'detail', slug] as const,
 };
 
 export function useServicesQuery() {
   return useQuery({
     queryKey: serviceKeys.all,
     queryFn: () => servicesApi.getAll(),
-    staleTime: 10 * 60 * 1000, // services rarely change
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function useAdminServicesQuery() {
+  return useQuery({
+    queryKey: serviceKeys.adminAll,
+    queryFn: () => servicesApi.getAllAdmin(),
+    staleTime: 0,
   });
 }
 
