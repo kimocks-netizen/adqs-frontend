@@ -127,30 +127,15 @@ const InvoicePDF: React.FC<{ invoice: any; onClose: () => void; autoDownload?: b
   const handleDownload = React.useCallback(async () => {
     if (!pdfRef.current) return;
     const html2pdf = (await import('html2pdf.js')).default;
-
-    const opt = {
-      margin: [0.5, 0.5, 0.6, 0.5] as [number, number, number, number],
-      filename: `${invoice.invoice_number}.pdf`,
-      image: { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: 'in' as const, format: 'a4' as const, orientation: 'portrait' as const },
-      pagebreak: { mode: ['css', 'legacy'] },
-    };
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (html2pdf().from(pdfRef.current).set(opt).toPdf().get('pdf').then((pdf: any) => {
-      const totalPages = pdf.internal.getNumberOfPages();
-      const pageWidth  = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      for (let p = 1; p <= totalPages; p++) {
-        pdf.setPage(p);
-        pdf.setFontSize(9);
-        pdf.setTextColor(150);
-        pdf.text(`Page ${p} of ${totalPages}`, pageWidth / 2, pageHeight - 0.25, { align: 'center' });
-      }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    }) as any).save();
-
+    html2pdf()
+      .set({
+        margin: [15, 15, 15, 15],
+        filename: `${invoice.invoice_number}.pdf`,
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      })
+      .from(pdfRef.current)
+      .save();
     if (autoDownload) onClose();
   }, [invoice.invoice_number, autoDownload, onClose]);
 
