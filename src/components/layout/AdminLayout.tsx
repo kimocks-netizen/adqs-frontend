@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import {
   LayoutDashboard, FolderOpen, Mail, LogOut,
-  ChevronRight, User, FileText, Briefcase, Receipt,
+  ChevronRight, User, FileText, Briefcase, Receipt, MoreHorizontal, X,
 } from 'lucide-react';
 import logo from '@/assets/logo.jpg';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -16,13 +17,14 @@ const NAV = [
   { to: ROUTES.ADMIN_ENQUIRIES, label: 'Enquiries', icon: Mail,            end: false },
 ];
 
-// Mobile bottom nav — 5 items max (Services accessible via desktop sidebar only)
-const MOBILE_NAV = NAV.filter(n => n.label !== 'Services');
+// Mobile bottom nav — 4 core items + "More" button
+const MOBILE_NAV = NAV.filter(n => !['Services'].includes(n.label));
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const user   = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   function handleLogout() {
     logout();
@@ -100,14 +102,6 @@ export default function AdminLayout() {
             <span className="text-xs bg-brand-secondary/10 text-brand-secondary font-semibold px-3 py-1 rounded-full">
               Admin
             </span>
-            {/* Mobile sign out */}
-            <button
-              onClick={handleLogout}
-              className="md:hidden text-gray-400 hover:text-red-500 transition-colors"
-              title="Sign out"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
           </div>
         </header>
 
@@ -117,7 +111,7 @@ export default function AdminLayout() {
         </main>
       </div>
 
-      {/* ── Mobile bottom nav (WhatsApp style, hidden on desktop) ── */}
+      {/* ── Mobile bottom nav ── */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-100 shadow-lg">
         <div className="flex items-center justify-around h-12">
           {MOBILE_NAV.map(({ to, label, icon: Icon, end }) => (
@@ -141,8 +135,55 @@ export default function AdminLayout() {
               )}
             </NavLink>
           ))}
+          {/* More button */}
+          <button
+            onClick={() => setMoreOpen(true)}
+            className="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <MoreHorizontal className="w-4 h-4" />
+            <span className="text-[10px] font-semibold mt-0.5">More</span>
+          </button>
         </div>
       </nav>
+
+      {/* ── More sheet (mobile) ── */}
+      {moreOpen && (
+        <>
+          <div className="md:hidden fixed inset-0 bg-black/40 z-50" onClick={() => setMoreOpen(false)} />
+          <div className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white rounded-t-2xl shadow-2xl pb-safe">
+            {/* Drag handle */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 rounded-full bg-gray-200" />
+            </div>
+            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+              <span className="text-sm font-bold text-brand-primary">More</span>
+              <button onClick={() => setMoreOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="px-4 py-3 space-y-1">
+              <NavLink
+                to="/admin/services"
+                onClick={() => setMoreOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
+                    isActive ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700 hover:bg-gray-50'
+                  }`
+                }
+              >
+                <Briefcase className="w-4 h-4" /> Services
+              </NavLink>
+              <button
+                onClick={() => { setMoreOpen(false); handleLogout(); }}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors w-full"
+              >
+                <LogOut className="w-4 h-4" /> Sign out
+              </button>
+            </div>
+            <div className="h-6" />
+          </div>
+        </>
+      )}
 
     </div>
   );
