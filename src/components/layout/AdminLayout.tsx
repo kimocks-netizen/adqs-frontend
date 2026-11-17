@@ -16,6 +16,9 @@ const NAV = [
   { to: ROUTES.ADMIN_ENQUIRIES, label: 'Enquiries', icon: Mail,            end: false },
 ];
 
+// Mobile bottom nav — 5 items max (Services accessible via desktop sidebar only)
+const MOBILE_NAV = NAV.filter(n => n.label !== 'Services');
+
 export default function AdminLayout() {
   const navigate = useNavigate();
   const user   = useAuthStore((s) => s.user);
@@ -117,7 +120,7 @@ export default function AdminLayout() {
       {/* ── Mobile bottom nav (WhatsApp style, hidden on desktop) ── */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-100 shadow-lg">
         <div className="flex items-center justify-around h-12">
-          {NAV.map(({ to, label, icon: Icon, end }) => (
+          {MOBILE_NAV.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
