@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Receipt, Plus, Eye, Edit2, ArrowLeftRight, Download, Trash2, Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Receipt, Plus, Eye, Edit2, ArrowLeftRight, Download, Trash2, Search, X } from 'lucide-react';
 import { useInvoicesQuery } from '@/features/invoices/queries';
 import { useUpdateInvoice, useDeleteInvoice, useConvertDocument } from '@/features/invoices/mutations';
 import { invoicesApi } from '@/features/invoices/api';
@@ -24,6 +24,7 @@ const TYPE_COLOURS: Record<string, string> = {
 
 export default function InvoicesPage() {
   const [page,       setPage]       = useState(1);
+  const [limit,      setLimit]      = useState(10);
   const [search,     setSearch]     = useState('');
   const [liveSearch, setLiveSearch] = useState('');
   const [filterType,   setFilterType]   = useState('');
@@ -36,14 +37,14 @@ export default function InvoicesPage() {
   const [deleteId,      setDeleteId]      = useState<string | null>(null);
   const [convertTarget, setConvertTarget] = useState<Invoice | null>(null);
 
-  const { data, isLoading } = useInvoicesQuery({ page, search, type: filterType, status: filterStatus });
+  const { data, isLoading } = useInvoicesQuery({ page, limit, search, type: filterType, status: filterStatus });
   const updateMutation  = useUpdateInvoice();
   const deleteMutation  = useDeleteInvoice();
   const convertMutation = useConvertDocument();
 
   const invoices   = data?.data ?? [];
   const total      = data?.total ?? 0;
-  const totalPages = Math.ceil(total / 20);
+  const totalPages = Math.max(1, Math.ceil(total / limit));
 
   function applySearch() { setSearch(liveSearch); setPage(1); }
   function clearFilters() { setSearch(''); setLiveSearch(''); setFilterType(''); setFilterStatus(''); setPage(1); }
@@ -216,21 +217,31 @@ export default function InvoicesPage() {
         </table>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50 text-xs text-gray-500">
-            <span>{total} result{total !== 1 ? 's' : ''} · Page {page} of {totalPages}</span>
-            <div className="flex gap-1">
-              <button onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}
-                className="p-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40">
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-              <button onClick={() => setPage(p => Math.min(p + 1, totalPages))} disabled={page >= totalPages}
-                className="p-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40">
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50">
+          <p className="text-xs text-gray-400">
+            {total === 0 ? '0' : `${((page - 1) * limit) + 1}–${Math.min(page * limit, total)}`} of {total}
+          </p>
+          <div className="flex items-center gap-1">
+            <select
+              value={limit}
+              onChange={e => { setLimit(Number(e.target.value)); setPage(1); }}
+              className="text-xs font-semibold border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none bg-white mr-2"
+              title="Items per page"
+            >
+              {[5, 10, 20, 50].map(n => <option key={n} value={n}>{n} / page</option>)}
+            </select>
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+              className="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40">Prev</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+              <button key={p} onClick={() => setPage(p)}
+                className={`w-7 h-7 text-xs font-semibold rounded-lg transition-colors ${
+                  p === page ? 'bg-brand-primary text-white' : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}>{p}</button>
+            ))}
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
+              className="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40">Next</button>
           </div>
-        )}
+        </div>
       </div>
 
       {/* ── Mobile cards ── */}
@@ -293,17 +304,24 @@ export default function InvoicesPage() {
         ))}
 
         {/* Mobile pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between text-xs text-gray-500 px-1">
-            <span>Page {page} of {totalPages}</span>
-            <div className="flex gap-2">
-              <button onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}
-                className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white disabled:opacity-40">Prev</button>
-              <button onClick={() => setPage(p => Math.min(p + 1, totalPages))} disabled={page >= totalPages}
-                className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white disabled:opacity-40">Next</button>
-            </div>
+        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+          <p className="text-xs text-gray-400">
+            {total === 0 ? '0' : `${((page - 1) * limit) + 1}–${Math.min(page * limit, total)}`} of {total}
+          </p>
+          <div className="flex items-center gap-1">
+            <select
+              value={limit}
+              onChange={e => { setLimit(Number(e.target.value)); setPage(1); }}
+              className="text-xs font-semibold border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none bg-white mr-1"
+            >
+              {[5, 10, 20, 50].map(n => <option key={n} value={n}>{n}</option>)}
+            </select>
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+              className="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40">Prev</button>
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
+              className="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40">Next</button>
           </div>
-        )}
+        </div>
       </div>
 
       {/* ── Modals ── */}
