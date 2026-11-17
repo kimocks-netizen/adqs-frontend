@@ -1,9 +1,9 @@
-import { useRef, useCallback, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { X, Download, Printer } from 'lucide-react';
 import type { Invoice } from '@/types';
 import logo from '@/assets/logo.jpg';
 
-const fmt    = (n: number) => new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(n);
+const fmt     = (n: number) => new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(n);
 const fmtDate = (d: string) => new Date(d).toLocaleDateString('en-ZA', { year: 'numeric', month: 'long', day: 'numeric' });
 
 const BANKING = [
@@ -142,23 +142,37 @@ interface Props {
 export default function InvoicePDF({ invoice, onClose, autoDownload = false }: Props) {
   const pdfRef = useRef<HTMLDivElement>(null);
 
-  const handleDownload = useCallback(async () => {
+  const handleDownload = React.useCallback(async () => {
     if (!pdfRef.current) return;
     const html2pdf = (await import('html2pdf.js')).default;
-    await html2pdf()
-      .from(pdfRef.current)
-      .set({
-        margin: [0.4, 0.4, 0.5, 0.4] as [number, number, number, number],
-        filename: `${invoice.invoice_number}.pdf`,
-        image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'in' as const, format: 'a4' as const, orientation: 'portrait' as const },
-      })
-      .save();
+
+    const opt = {
+      margin: [0.5, 0.5, 0.6, 0.5] as [number, number, number, number],
+      filename: `${invoice.invoice_number}.pdf`,
+      image: { type: 'jpeg' as const, quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in' as const, format: 'a4' as const, orientation: 'portrait' as const },
+      pagebreak: { mode: ['css', 'legacy'] },
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (html2pdf().from(pdfRef.current).set(opt).toPdf().get('pdf').then((pdf: any) => {
+      const totalPages = pdf.internal.getNumberOfPages();
+      const pageWidth  = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      for (let p = 1; p <= totalPages; p++) {
+        pdf.setPage(p);
+        pdf.setFontSize(9);
+        pdf.setTextColor(150);
+        pdf.text(`Page ${p} of ${totalPages}`, pageWidth / 2, pageHeight - 0.25, { align: 'center' });
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }) as any).save();
+
     if (autoDownload) onClose();
   }, [invoice.invoice_number, autoDownload, onClose]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (autoDownload) { const t = setTimeout(handleDownload, 400); return () => clearTimeout(t); }
   }, [autoDownload, handleDownload]);
 
