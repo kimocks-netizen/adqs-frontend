@@ -11,6 +11,8 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+const decodeHTML = (str: string) => str.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+
 export default function ArticlesPage() {
   const [search, setSearch]           = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft' | 'hidden'>('all');
@@ -98,7 +100,7 @@ export default function ArticlesPage() {
               {articles.map((article) => (
                 <tr key={article.id} className={`hover:bg-gray-50 transition-colors ${article.hidden ? 'opacity-50' : ''}`}>
                   <td className="px-5 py-3.5">
-                    <p className="font-semibold text-gray-800 line-clamp-1">{article.title}</p>
+                    <p className="font-semibold text-gray-800 line-clamp-1">{decodeHTML(article.title)}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{article.slug}</p>
                   </td>
                   <td className="px-5 py-3.5 text-gray-500 hidden md:table-cell">{article.category}</td>
@@ -143,7 +145,7 @@ export default function ArticlesPage() {
           empty="No articles found."
           rows={articles.map((article) => ({
             id: article.id,
-            primary: article.title,
+            primary: decodeHTML(article.title),
             secondary: `${article.category} · ${formatDate(article.published_at)}`,
             actions: (
               <>

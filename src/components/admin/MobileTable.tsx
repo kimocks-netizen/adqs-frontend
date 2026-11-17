@@ -26,10 +26,10 @@ export function MobileTable({ rows, empty = 'No records found.' }: { rows: Mobil
           {row.badge && (
             <div className="absolute top-3 right-4">{row.badge}</div>
           )}
-          {/* Title stacked, padded right so it doesn't overlap badge */}
-          <div className="min-w-0 pr-20">
-            <p className="text-sm font-semibold text-gray-800 leading-tight">{row.primary}</p>
-            {row.secondary && <p className="mt-0.5 text-xs text-gray-400">{row.secondary}</p>}
+          {/* Title — only pad right if badge present */}
+          <div className={`min-w-0 ${row.badge ? 'pr-20' : ''}`}>
+            <p className="text-sm font-semibold text-gray-800 leading-tight break-words">{row.primary}</p>
+            {row.secondary && <p className="mt-0.5 text-xs text-gray-400 break-words">{row.secondary}</p>}
           </div>
 
           {/* Fields grid */}
