@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlusCircle, Pencil, Trash2, Check, X, ToggleLeft, ToggleRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { PlusCircle, Pencil, Trash2, Check, X, ToggleLeft, ToggleRight, ChevronDown, ChevronUp, EyeOff } from 'lucide-react';
 import { useAdminServicesQuery } from '@/features/services/queries';
 import { useCreateService, useUpdateService, useDeleteService } from '@/features/services/mutations';
 import type { Service } from '@/features/services/api';
@@ -103,6 +103,7 @@ export default function AdminServicesPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [hideId, setHideId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   function handleCreate(data: Omit<Service, 'id'>) {
@@ -114,7 +115,11 @@ export default function AdminServicesPage() {
   }
 
   function handleToggleActive(service: Service) {
-    updateService.mutate({ id: service.id, is_active: !service.is_active });
+    if (service.is_active) {
+      setHideId(service.id); // show confirmation before hiding
+    } else {
+      updateService.mutate({ id: service.id, is_active: true }); // unhide instantly
+    }
   }
 
   return (
@@ -267,6 +272,39 @@ export default function AdminServicesPage() {
           ))}
         </div>
       )}
+
+      {/* Hide confirmation modal */}
+      <AnimatePresence>
+        {hideId && (() => {
+          const svc = services.find((s) => s.id === hideId);
+          return (
+            <>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/40 z-50" />
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="fixed inset-0 z-50 flex items-center justify-center px-4">
+                <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center">
+                  <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                    <EyeOff className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">Hide this service?</h3>
+                  <p className="text-sm text-gray-500 mb-1">
+                    <span className="font-semibold text-gray-700">{svc?.title}</span> will no longer appear on the public website.
+                  </p>
+                  <p className="text-sm text-gray-400 mb-6">You can make it visible again at any time by toggling it back on.</p>
+                  <div className="flex gap-3">
+                    <button onClick={() => setHideId(null)} className="flex-1 py-2.5 text-sm font-semibold rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50">Cancel</button>
+                    <button
+                      onClick={() => { updateService.mutate({ id: hideId, is_active: false }); setHideId(null); }}
+                      className="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-amber-500 text-white hover:bg-amber-600"
+                    >
+                      Yes, Hide It
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          );
+        })()}
+      </AnimatePresence>
 
       {/* Delete modal */}
       <AnimatePresence>

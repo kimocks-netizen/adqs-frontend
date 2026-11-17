@@ -39,7 +39,7 @@ function FolderItem({
     <div>
       <div
         className={`group flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors text-sm ${
-          isActive ? 'bg-brand-primary/10 text-brand-primary font-semibold' : 'text-gray-600 hover:bg-gray-100'
+          isActive ? 'bg-brand-primary/15 text-brand-primary font-semibold border-l-2 border-brand-primary' : 'text-gray-600 hover:bg-gray-100'
         }`}
         onClick={() => onSelect(folder.id)}
       >
@@ -154,7 +154,7 @@ export default function DocumentsPage() {
             return (
               <button key={f.id} onClick={() => handleSetFolder(f.id)}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors shrink-0 ${
-                  isActive ? 'bg-brand-primary text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                  isActive ? 'bg-brand-gradient text-white shadow-sm' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
                 }`}
               >
                 {isActive ? <FolderOpen className="w-3.5 h-3.5" /> : <Folder className="w-3.5 h-3.5" />}
@@ -388,8 +388,37 @@ export default function DocumentsPage() {
                   </button>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto py-8 px-4">
-                <div className="bg-white shadow-2xl mx-auto p-12" style={{ width: '794px', minWidth: '794px', fontFamily: 'Georgia, serif' }}>
+              <div className="flex-1 overflow-y-auto py-4 px-3 md:py-8 md:px-4">
+                {/* Mobile: fluid card layout */}
+                <div className="md:hidden bg-white rounded-xl shadow-lg mx-auto p-5 max-w-full" style={{ fontFamily: 'Georgia, serif' }}>
+                  {previewDoc.watermark && (
+                    <div style={{ position: 'relative', overflow: 'hidden' }}>
+                      <span style={{ position: 'absolute', fontSize: '64px', fontWeight: 900, color: 'rgba(11,40,84,0.06)', transform: 'rotate(-35deg)', whiteSpace: 'nowrap', userSelect: 'none', top: '10px', left: '-10px' }}>DRAFT</span>
+                    </div>
+                  )}
+                  {/* Mobile header */}
+                  <div style={{ borderBottom: '2px solid #C79527', paddingBottom: '10px', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                      <img src={logo} alt="ADQS" style={{ height: '28px', width: 'auto', borderRadius: '3px' }} />
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: '11px', color: '#0B2854' }}>Adequate Strategies (Pty) Ltd</div>
+                        <div style={{ fontSize: '10px', color: '#888' }}>Legal Consulting · Pretoria</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 700, color: '#C79527', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{previewDoc.type}</div>
+                      <div style={{ fontSize: '10px', color: '#888' }}>Ref: ADQS-{previewDoc.id.slice(-6)}</div>
+                    </div>
+                  </div>
+                  <h1 style={{ fontSize: '15px', fontWeight: 700, color: '#0B2854', margin: '0 0 14px 0' }}>{previewDoc.title}</h1>
+                  <div style={{ fontSize: '12px', lineHeight: '1.8', color: '#333' }} className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: previewDoc.body }} />
+                  <div style={{ borderTop: '1px solid #e5e7eb', marginTop: '24px', paddingTop: '8px', fontSize: '9px', color: '#aaa' }}>
+                    <div>Adequate Strategies (Pty) Ltd · 252 Cole Road, Shere, Pretoria</div>
+                    <div>info@adqs.co.za · Confidential</div>
+                  </div>
+                </div>
+                {/* Desktop: fixed A4 width */}
+                <div className="hidden md:block bg-white shadow-2xl mx-auto p-12" style={{ width: '794px', minWidth: '794px', fontFamily: 'Georgia, serif' }}>
                   {previewDoc.watermark && (
                     <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
                       <span style={{ fontSize: '96px', fontWeight: 900, color: 'rgba(11,40,84,0.06)', transform: 'rotate(-35deg)', whiteSpace: 'nowrap', userSelect: 'none', letterSpacing: '0.1em' }}>DRAFT</span>
