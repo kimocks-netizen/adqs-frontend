@@ -310,7 +310,18 @@ async function downloadPDF(invoice: any) {
   // ── Footer on last page ──
   drawPageFooter();
 
-  pdf.save(`${invoice.invoice_number}.pdf`);
+  // Use blob URL with a hidden anchor so mobile browsers download without navigating away
+  const blob    = pdf.output('blob');
+  const blobUrl = URL.createObjectURL(blob);
+  const a       = document.createElement('a');
+  a.href        = blobUrl;
+  a.download    = `${invoice.invoice_number}.pdf`;
+  a.target      = '_blank';
+  a.rel         = 'noopener noreferrer';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -112,7 +112,7 @@ export default function AdminLayout() {
       </div>
 
       {/* ── Mobile bottom nav ── */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-100 shadow-lg">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-100 shadow-lg">
         <div className="flex items-center justify-around h-12">
           {MOBILE_NAV.map(({ to, label, icon: Icon, end }) => (
             <NavLink
@@ -149,8 +149,8 @@ export default function AdminLayout() {
       {/* ── More sheet (mobile) ── */}
       {moreOpen && (
         <>
-          <div className="md:hidden fixed inset-0 bg-black/40 z-50" onClick={() => setMoreOpen(false)} />
-          <div className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white rounded-t-2xl shadow-2xl pb-safe">
+          <div className="md:hidden fixed inset-0 bg-black/40 z-40" onClick={() => setMoreOpen(false)} />
+          <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white rounded-t-2xl shadow-2xl pb-safe">
             {/* Drag handle */}
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 rounded-full bg-gray-200" />
