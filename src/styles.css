@@ -93,12 +93,23 @@
 
 @layer base {
   * { border-color: var(--color-border); }
+  html {
+    scrollbar-gutter: stable;
+    overflow-y: scroll;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
+  /* Hide scrollbar indicator while keeping scroll functionality */
+  ::-webkit-scrollbar { width: 0px; background: transparent; }
+  * { scrollbar-width: none; }
+  /* Re-enable scrollbar inside admin modals/panels that need it */
+  .overflow-y-auto::-webkit-scrollbar,
+  .overflow-auto::-webkit-scrollbar { width: 4px; }
+  .overflow-y-auto, .overflow-auto { scrollbar-width: thin; scrollbar-color: oklch(0.85 0.01 250) transparent; }
 }
 
 @layer utilities {

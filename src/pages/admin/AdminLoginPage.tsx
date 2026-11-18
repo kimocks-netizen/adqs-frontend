@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
 import logo from '@/assets/logo.jpg';
@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
           className="bg-white rounded-2xl shadow-card overflow-hidden"
         >
           <div className="bg-brand-gradient px-8 py-7 text-white">
-            <img src={logo} alt="ADQS" className="h-10 w-auto object-contain rounded mb-4" />
+            <Link to="/"><img src={logo} alt="ADQS" className="h-10 w-auto object-contain rounded mb-4 cursor-pointer hover:opacity-80 transition-opacity" /></Link>
             <h1 className="text-xl font-bold">Admin Portal</h1>
             <p className="text-white/70 text-sm mt-1">Sign in to manage your content</p>
           </div>
