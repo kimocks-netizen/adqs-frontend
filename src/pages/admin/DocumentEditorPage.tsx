@@ -108,16 +108,36 @@ export default function DocumentEditorPage() {
   async function handleExportPDF() {
     const el = printRef.current;
     if (!el) return;
-    const html2pdf = (await import('html2pdf.js')).default;
-    html2pdf()
-      .set({
-        margin: [15, 15, 15, 15],
-        filename: `${title || 'document'}.pdf`,
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      })
-      .from(el)
-      .save();
+
+    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+      import('html2canvas'),
+      import('jspdf'),
+    ]);
+
+    // Render into a sandboxed iframe so html2canvas never sees Tailwind/oklch
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1px;border:none;visibility:hidden;';
+    document.body.appendChild(iframe);
+    const iframeDoc = iframe.contentDocument!;
+    iframeDoc.open();
+    iframeDoc.write(`<!DOCTYPE html><html><head><meta charset="utf-8"/><style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1a1a1a;background:#fff;width:794px;padding:60px;}</style></head><body>${el.innerHTML}</body></html>`);
+    iframeDoc.close();
+    iframe.style.height = iframeDoc.body.scrollHeight + 'px';
+
+    const canvas = await html2canvas(iframeDoc.body, { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff', windowWidth: 794 });
+    document.body.removeChild(iframe);
+
+    const pdf   = new jsPDF({ unit: 'px', format: 'a4', orientation: 'portrait' });
+    const pdfW  = pdf.internal.pageSize.getWidth();
+    const pdfH  = pdf.internal.pageSize.getHeight();
+    const imgH  = (canvas.height * pdfW) / canvas.width;
+    let   yOff  = 0; let page = 1;
+    while (yOff < imgH) {
+      if (page > 1) pdf.addPage();
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, -yOff, pdfW, imgH);
+      yOff += pdfH; page++;
+    }
+    pdf.save(`${title || 'document'}.pdf`);
   }
 
   async function handleExportDOCX() {
