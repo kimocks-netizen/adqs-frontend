@@ -103,6 +103,11 @@ function buildPreviewHTML(invoice: any, logoSrc: string): string {
   <p style="font-size:10px;color:#aaa;text-align:right;margin-bottom:20px;font-style:italic;">
     Adequate Strategies (Pty) Ltd is not registered for VAT. No VAT is applicable to this ${label.toLowerCase()}.
   </p>
+  ${invoice.notes ? `
+  <div style="background:#fffef5;border:1px solid #fef3c7;border-radius:7px;padding:14px 16px;margin-bottom:20px;">
+    <h3 style="font-weight:700;margin-bottom:6px;font-size:13px;color:#92400e;">Notes</h3>
+    <p style="font-size:13px;color:#78350f;line-height:1.6;white-space:pre-wrap;">${invoice.notes}</p>
+  </div>` : ''}
   <div style="background:#f9fafb;border-radius:7px;padding:16px;margin-bottom:20px;">
     <h3 style="font-weight:700;margin-bottom:8px;font-size:14px;">Banking Details</h3>
     <table style="width:100%;font-size:13px;border-collapse:collapse;"><tbody>${banking}</tbody></table>
@@ -267,6 +272,23 @@ async function downloadPDF(invoice: any) {
   );
   pdf.text(vatNote, R, y, { align: 'right' });
   y += vatNote.length * 4 + 8;
+
+  // ── Notes ──
+  if (invoice.notes) {
+    pdf.setFontSize(8);
+    const noteLines = pdf.splitTextToSize(String(invoice.notes), R - L - 10);
+    const lineH     = pdf.getLineHeight() / pdf.internal.scaleFactor;
+    const noteBoxH  = 5 + 7 + noteLines.length * lineH + 5;
+    need(noteBoxH);
+    pdf.setFillColor(255, 254, 245);
+    pdf.setDrawColor(254, 243, 199); pdf.setLineWidth(0.3);
+    pdf.roundedRect(L, y, R - L, noteBoxH, 2, 2, 'FD');
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(9); pdf.setTextColor(146, 64, 14);
+    pdf.text('Notes', L + 4, y + 5.5);
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(120, 53, 15);
+    pdf.text(noteLines, L + 4, y + 5.5 + 7);
+    y += noteBoxH + 6;
+  }
 
   // ── Banking ──
   const bankingRows = [...BANKING, ['Reference', invoice.invoice_number]];

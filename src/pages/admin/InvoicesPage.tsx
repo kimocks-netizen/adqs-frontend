@@ -347,7 +347,13 @@ export default function InvoicesPage() {
         <InvoiceEditorModal
           editInvoice={editInvoice}
           onClose={() => { setEditorOpen(false); setEditInvoice(undefined); }}
-          onSaved={(inv) => { setEditorOpen(false); setEditInvoice(undefined); setPdfInvoice(inv); }}
+          onSaved={async (inv) => {
+            setEditorOpen(false);
+            setEditInvoice(undefined);
+            // Re-fetch full invoice to ensure invoice_items are included
+            const res = await invoicesApi.getById(inv.id);
+            setPdfInvoice(res.data);
+          }}
         />
       )}
 

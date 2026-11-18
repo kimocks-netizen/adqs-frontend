@@ -52,16 +52,18 @@ export default function InvoiceEditorModal({ onClose, onSaved, editInvoice }: Pr
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    // Normalize notes: trim, collapse excess whitespace, clean up line breaks
+    const cleanNotes = notes.trim().replace(/[^\S\n]+/g, ' ').replace(/\n{3,}/g, '\n\n');
     const payload = {
       document_type: docType,
-      customer_name: name,
-      customer_email: email || undefined,
-      customer_phone: phone || undefined,
-      matter_reference: matter || undefined,
+      customer_name: name.trim(),
+      customer_email: email.trim() || undefined,
+      customer_phone: phone.trim() || undefined,
+      matter_reference: matter.trim() || undefined,
       invoice_date: date,
       due_date: dueDate || undefined,
-      notes: notes || undefined,
-      items: items.map(i => ({ description: i.description, amount: parseFloat(String(i.amount)) || 0 })),
+      notes: cleanNotes || undefined,
+      items: items.map(i => ({ description: i.description.trim(), amount: parseFloat(String(i.amount)) || 0 })),
     };
 
     if (isEditing && editInvoice) {
@@ -112,19 +114,19 @@ export default function InvoiceEditorModal({ onClose, onSaved, editInvoice }: Pr
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="sm:col-span-2">
                 <label className={labelCls}>Client Name *</label>
-                <input value={name} onChange={e => setName(e.target.value)} required className={inputCls} placeholder="Full name or company" />
+                <input value={name} onChange={e => setName(e.target.value)} required minLength={3} maxLength={100} className={inputCls} placeholder="Full name or company" />
               </div>
               <div>
                 <label className={labelCls}>Email</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputCls} placeholder="client@example.com" />
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} maxLength={100} className={inputCls} placeholder="client@example.com" />
               </div>
               <div>
                 <label className={labelCls}>Phone</label>
-                <input value={phone} onChange={e => setPhone(e.target.value)} className={inputCls} placeholder="0XX XXX XXXX" />
+                <input value={phone} onChange={e => setPhone(e.target.value)} minLength={7} maxLength={20} className={inputCls} placeholder="0XX XXX XXXX" />
               </div>
               <div>
                 <label className={labelCls}>Matter Reference</label>
-                <input value={matter} onChange={e => setMatter(e.target.value)} className={inputCls} placeholder="ADQS/2025/001" />
+                <input value={matter} onChange={e => setMatter(e.target.value)} minLength={3} maxLength={50} className={inputCls} placeholder="ADQS/2025/001" />
               </div>
               <div>
                 <label className={labelCls}>{docType === 'quote' ? 'Quote' : 'Invoice'} Date *</label>
@@ -148,13 +150,22 @@ export default function InvoiceEditorModal({ onClose, onSaved, editInvoice }: Pr
               <div className="space-y-2">
                 {items.map((item, idx) => (
                   <div key={idx} className="flex gap-2 items-start">
-                    <input
-                      value={item.description}
-                      onChange={e => updateItem(idx, 'description', e.target.value)}
-                      required
-                      placeholder="e.g. Legal consultation — contract review"
-                      className={inputCls + ' flex-1'}
-                    />
+                    <div className="flex-1">
+                      <input
+                        value={item.description}
+                        onChange={e => updateItem(idx, 'description', e.target.value)}
+                        required
+                        minLength={3}
+                        maxLength={300}
+                        placeholder="e.g. Legal consultation — contract review"
+                        className={inputCls + ' w-full'}
+                      />
+                      {item.description.length >= 290 && (
+                        <div className="text-right text-[10px] mt-0.5 text-red-400">
+                          {300 - item.description.length} of 300 left
+                        </div>
+                      )}
+                    </div>
                     <div className="relative w-32 shrink-0">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">R</span>
                       <input
@@ -181,8 +192,12 @@ export default function InvoiceEditorModal({ onClose, onSaved, editInvoice }: Pr
 
             {/* Notes */}
             <div>
-              <label className={labelCls}>Notes</label>
-              <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2}
+              <div className="flex items-center justify-between mb-1">
+                <label className={labelCls + ' mb-0'}>Notes</label>
+                <span className="text-[10px] text-red-400">{notes.length > 990 ? `${1000 - notes.length} of 1000 left` : ''}</span>
+              </div>
+              <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3}
+                maxLength={1000}
                 className={inputCls + ' resize-none'} placeholder="Payment terms, special instructions..." />
             </div>
 
