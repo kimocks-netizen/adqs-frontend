@@ -48,7 +48,7 @@ export default function FounderSection() {
             regulatory compliance, labour relations, human rights and legal research.
             He founded Adequate Strategies Legal Consulting to provide accessible,
             research-informed legal advisory services to businesses and individuals
-            across South Africa.
+            across South Africa & Beyond.
           </p>
           <p className="mt-4 leading-relaxed text-muted-foreground text-justify">
             His work is guided by a commitment to clarity, practical outcomes and

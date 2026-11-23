@@ -37,7 +37,7 @@ export default function InsightsPage() {
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
             className="text-white/80 max-w-xl text-lg">
-            Analysis, opinions, and updates on South African law from the ADQS team.
+            Analysis, opinions, and updates on law from the ADQS team.
           </motion.p>
         </div>
       </section>

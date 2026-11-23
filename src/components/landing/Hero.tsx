@@ -162,7 +162,7 @@ export default function Hero() {
           className="mt-6 max-w-xl text-lg leading-relaxed text-white/75"
         >
           We help businesses, institutions and individuals navigate complex legal
-          landscapes with clarity, research and practical strategy — across South Africa.
+          landscapes with clarity, research and practical strategy — across South Africa & Beyond.
         </motion.p>
 
         {/* CTAs */}

@@ -109,7 +109,7 @@ function PageHero() {
           className="max-w-2xl text-lg leading-relaxed text-white/80"
         >
           Practical, research-informed legal and compliance consulting for individuals,
-          businesses and organisations across South Africa.
+          businesses and organisations across South Africa & Beyond.
         </motion.p>
       </div>
     </section>
